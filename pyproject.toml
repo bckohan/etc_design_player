@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "etc-player"
+version = "0.1.0"
+description = ""
+authors = ["Brian Kohan <bckohan@gmail.com>"]
+readme = "README.md"
+packages = [{include = "etc_player"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+django = "^4.2.1"
+django-split-settings = "^1.2.0"
+django-enum = "^1.2.1"
+enum-properties = "^1.5.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
