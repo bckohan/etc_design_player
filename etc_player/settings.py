@@ -25,12 +25,13 @@ SECRET_KEY = 'django-insecure-qdx528ho(@d9yl*$0euxdu^)#^_c-!^+*id+kk6h81kkwtqh_*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'etc_player',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,7 +50,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'mysite.urls'
+ROOT_URLCONF = 'etc_player.urls'
 
 TEMPLATES = [
     {
@@ -67,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'mysite.wsgi.application'
+WSGI_APPLICATION = 'etc_player.wsgi.application'
 
 
 # Database
