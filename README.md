@@ -5,7 +5,7 @@ ETC Design Audio Playlist Player
 ## Installation
 
 Install the Raspberry PI operating system and connect it to your local network.
-Determine the Raspberry PI's IP address - there are numerous ways to do this.
+Determine the Raspberry PI's IP address - [there are numerous ways to do this](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F).
 Replace 192.168.1.106 with the correct IP address for your raspberry pi below 
 when following this procedure:
 
