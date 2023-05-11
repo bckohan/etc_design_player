@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "etc-player"
-version = "0.1.0"
+version = "1.0.0"
 description = ""
 authors = ["Brian Kohan <bckohan@gmail.com>"]
 readme = "README.md"
@@ -11,7 +11,7 @@ python = "^3.9"
 django = "^4.2.1"
 django-enum = "^1.2.1"
 enum-properties = "^1.5.2"
-pyaudio = "^0.2.13"
+pyaudio = "0.2.11"
 gunicorn = "^20.1.0"
 
 

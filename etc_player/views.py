@@ -17,6 +17,12 @@ class ControlView(TemplateView):
     def restart_audio():
         subprocess.run(settings.RESTART_COMMAND.split())
 
+    @staticmethod
+    def set_volume(volume):
+        subprocess.run(settings.VOLUME_COMMAND.format(
+            volume=max(0, min(100, int(volume)))
+        ).split())
+
     def get(self, request, *args, **kwargs):
         settings = PlaybackSettings.load()
         do_stop = request.GET.get('stop', None) is not None
@@ -28,6 +34,7 @@ class ControlView(TemplateView):
         if volume is not None and settings.volume != volume:
             settings.volume = volume
             settings.save()
+            self.set_volume(volume)
         if do_stop:
             ManualOverride.objects.create(
                 operation=ManualOverride.Operation.STOP
