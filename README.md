@@ -4,11 +4,12 @@ ETC Design Audio Playlist Player
 
 ## Installation
 
+Replace 192.168.1.106 with the correct IP address for your raspberry pi below.
+
  - Build this package:
     `poetry build`
  - SCP this package to the device:
-    `scp ./dist/etc_design_player-0.1.0-py3-none-any.whl mvc@192.168.1.106:./`
- - Install PyAudio on Device:
-    `raspberrypi> sudo apt install python3-pyaudio`
- - Install package on Device:
-    `raspberrypi> sudo pip3 install ./etc_design_player-0.1.0-py3-none-any.whl`
+    `scp ./dist/etc_player-*.whl mvc@192.168.1.106:./`
+    `scp ./install.sh mvc@192.168.1.106:./`
+ - Install Dependencies on Device:
+    `raspberrypi> source ./install.sh`
