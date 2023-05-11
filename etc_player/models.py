@@ -78,7 +78,11 @@ class Wave(models.Model):
     length = models.DurationField(null=True, default=None, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.length is None and self.file.path is not None:
+        if (
+            self.length is None and
+            self.file.path is not None and
+            os.path.exists(self.file.path)
+        ):
             with contextlib.closing(wave.open(self.file.path, 'r')) as wave_file:
                 frames = wave_file.getnframes()
                 rate = wave_file.getframerate()

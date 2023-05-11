@@ -13,6 +13,8 @@ Group=mvc
 # see http://0pointer.net/blog/dynamic-users-with-systemd.html
 RuntimeDirectory=player
 WorkingDirectory=/var/www/player
+Environment=PYTHONPATH=/opt/player/bin
+Environment=PLAYER_DIR=/var/www/player
 ExecStart=/opt/player/bin/player play_audio
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
