@@ -16,5 +16,5 @@ when following this procedure:
     * `ssh mvc@192.168.1.106`
     * `mvc@raspberrypi:~ $> source ./install.sh`
  - Follow all prompts.
-
+ - Configure your playback: http://192.168.1.106/admin
 
