@@ -8,7 +8,7 @@ Replace 192.168.1.106 with the correct IP address for your raspberry pi below wh
 
  - Build this package:
     `Download the latest package.`
- - SCP this package to the device:
+ - Install the package:
     * `scp ~/Downloads/etc_player-*.whl mvc@192.168.1.106:./`
     * `scp ./install.sh mvc@192.168.1.106:./`
     * `ssh mvc@192.168.1.106`
