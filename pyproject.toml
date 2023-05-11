@@ -11,9 +11,13 @@ python = "^3.9"
 django = "^4.2.1"
 django-enum = "^1.2.1"
 enum-properties = "^1.5.2"
-pyaudio = "0.2.11"
 gunicorn = "^20.1.0"
 
+[tool.poetry.group.pyaudio]
+optional = true
+
+[tool.poetry.group.pyaudio.dependencies]
+pyaudio = "0.2.11"
 
 [tool.poetry.scripts]
 player = 'etc_player.player:main'

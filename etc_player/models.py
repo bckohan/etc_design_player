@@ -191,7 +191,7 @@ class ManualOverride(models.Model):
             if self.operation is ManualOverride.Operation.PLAY:
                 self.playlist = PlaybackSettings.load().default_playlist
             else:
-                self.playlist = PlaybackTimeRange.objects.scheduled_playlist()
+                self.playlist = PlaybackTimeRange.objects.scheduled_playlist().playlist
         super().save(*args, **kwargs)
 
     @property

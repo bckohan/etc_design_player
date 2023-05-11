@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
 from etc_player.models import PlaybackSettings, PlaybackTimeRange
 from django.utils.timezone import localtime
+from django.conf import settings
+import subprocess
 import wave
-import pyaudio
 import time
 
 
@@ -21,7 +22,8 @@ class Command(BaseCommand):
             default=self.CHUNK,
             type=int,
             help=f'The number of bytes to buffer at a time from the wave file.'
-                 ' Default: {self.CHUNK}'
+                 '(This only applies when using pyaudio).'
+                 'Default: {self.CHUNK}'
         )
 
     def handle(self, *args, **options):
@@ -62,7 +64,8 @@ class Command(BaseCommand):
                 else:
                     return
 
-    def play_wave(self, wave_file):
+    def play_wave_pyaudio(self, wave_file):
+        import pyaudio
 
         with wave.open(wave_file.file.path, 'rb') as wf:
             # Instantiate PyAudio and initialize PortAudio system resources (1)
@@ -88,3 +91,12 @@ class Command(BaseCommand):
 
             # Release PortAudio system resources (5)
             p.terminate()
+
+    def play_wave(self, wave_file):
+        play_cmd = getattr(settings, 'PLAY_COMMAND', None)
+        if play_cmd:
+            subprocess.run(
+                play_cmd.format(wave_file=wave_file.file.path).split()
+            )
+        else:
+            self.play_wave_pyaudio(wave_file)
