@@ -11,5 +11,6 @@ Replace 192.168.1.106 with the correct IP address for your raspberry pi below.
  - SCP this package to the device:
     `scp ./dist/etc_player-*.whl mvc@192.168.1.106:./`
     `scp ./install.sh mvc@192.168.1.106:./`
- - Install Dependencies on Device:
+    `ssh mvc@192.168.1.106`
+ - Install Package on Device:
     `raspberrypi> source ./install.sh`
