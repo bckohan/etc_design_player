@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from etc_player.views import ControlView
+
 
 urlpatterns = [
+    path('', ControlView.as_view(), name='control'),
     path('admin/', admin.site.urls),
 ]

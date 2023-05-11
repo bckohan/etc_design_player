@@ -11,7 +11,11 @@ python = "^3.9"
 django = "^4.2.1"
 django-enum = "^1.2.1"
 enum-properties = "^1.5.2"
+pyaudio = "^0.2.13"
 
+
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.13.2"
 
 [build-system]
 requires = ["poetry-core"]

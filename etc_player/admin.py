@@ -7,12 +7,29 @@ from .models import (
     Playlist,
     PlaylistWave,
     Wave,
-    PlaybackTimeRange
+    PlaybackTimeRange,
+    ManualOverride
 )
+from django import forms
+
+
+class TimeInput(forms.widgets.TimeInput):
+    input_type = 'time'
+
+
+class PlaybackTimeRangeForm(forms.ModelForm):
+
+    class Meta:
+        model = PlaybackTimeRange
+        widgets = {
+            'start': TimeInput(),
+            'end': TimeInput()
+        }
+        fields = '__all__'
 
 
 class PlaybackTimeRangeAdmin(admin.ModelAdmin):
-    pass
+    form = PlaybackTimeRangeForm
 
 
 class PlaybackSettingsAdmin(admin.ModelAdmin):
@@ -30,6 +47,10 @@ class PlaylistAdmin(admin.ModelAdmin):
 
 
 class WaveAdmin(admin.ModelAdmin):
+    readonly_fields = ['length']
+
+
+class ManualOverrideAdmin(admin.ModelAdmin):
     pass
 
 
@@ -37,3 +58,4 @@ admin.site.register(PlaybackTimeRange, PlaybackTimeRangeAdmin)
 admin.site.register(PlaybackSettings, PlaybackSettingsAdmin)
 admin.site.register(Playlist, PlaylistAdmin)
 admin.site.register(Wave, WaveAdmin)
+admin.site.register(ManualOverride, ManualOverrideAdmin)

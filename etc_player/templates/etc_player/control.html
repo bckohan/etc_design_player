@@ -1,0 +1,138 @@
+{% load static %}
+<html>
+<head>
+    <title>Playback Control</title>
+    <style>
+        img.logo {
+            width: 20vw;
+        }
+        .center {
+            width: 60%;
+            height: 50%;
+            position: absolute;
+            top:0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            margin: auto;
+        }
+
+        .column-container {
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            padding-top: 20px;
+        }
+        .center-container {
+            display: flex;
+            justify-content: center;
+            padding-top: 20px;
+        }
+        .now-playing {
+          position: relative;
+          display: inline-flex;
+          justify-content: space-between;
+          width: 32px;
+          height: 32px;
+          margin-right: 8px;
+        }
+        .now-playing > span {
+          width: 7px;
+          height: 100%;
+          background-color: orange;
+          border-radius: 3px;
+          transform-origin: bottom;
+          transition: opacity 0.3s ease-out;
+          animation: bounce 2.2s ease infinite alternate;
+          content: "";
+        }
+        .now-playing > span:nth-of-type(2) {
+          animation-delay: -2.2s;
+        }
+        .now-playing > span:nth-of-type(3) {
+          animation-delay: -3.7s;
+        }
+
+        @keyframes bounce {
+          10% {
+            transform: scaleY(0.3);
+          }
+          30% {
+            transform: scaleY(1);
+          }
+          60% {
+            transform: scaleY(0.5);
+          }
+          80% {
+            transform: scaleY(0.75);
+          }
+          100% {
+            transform: scaleY(0.6);
+          }
+        }
+
+    </style>
+
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+
+</head>
+<body>
+    <div class="d-flex justify-content-between">
+        <a href="https://www.emmatc.com/" target="_blank">
+            <img class="logo" src="{% static 'etc_player/ETCxDesign_Logo_Color.svg' %}">
+        </a>
+    </div>
+    <div class="center">
+        <div class="column-container">
+            {% if settings.current_playlist %}
+            <h3 class="mb-2 text-center">{{ settings.current_playlist.name }}</h3>
+            <div class="center-container">
+                <div class="now-playing">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <button id="stop" type="button" class="btn" aria-label="Stop" onclick="stop();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="red" class="bi bi-stop-fill" viewBox="0 0 16 16">
+                  <path d="M5 3.5h6A1.5 1.5 0 0 1 12.5 5v6a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 11V5A1.5 1.5 0 0 1 5 3.5z"/>
+                </svg>
+            </button>
+            {% else %}
+            <select id="playlist" class="form-select" aria-label="Select playlist">
+                {% for playlist in playlists %}
+                <option value="{{ playlist.id }}" {% if playlist == settings.default_playlist %}selected{% endif %}>{{ playlist.name }}</option>
+                {% endfor %}
+            </select>
+            <button id="play" type="button" class="btn" aria-label="Play" onclick="play();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" fill="green" class="bi bi-play-fill" viewBox="0 0 16 16">
+                  <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                </svg>
+            </button>
+            {% endif %}
+            <div class="w-100">
+                <label for="volume" class="form-label">Volume</label>
+                <input type="range" class="form-range" id="volume" value="{{ settings.volume }}">
+            </div>
+        </div>
+    </div>
+    <script>
+
+        const volume = document.getElementById('volume');
+        const playlist = document.getElementById('playlist');
+
+        const play = function() {
+            window.location = `{% url "control" %}?play=1&volume=${volume.value}&playlist=${playlist.value}`;
+        }
+
+        const stop = function() {
+            window.location = `{% url "control" %}?stop=1&volume=${volume.value}`;
+        }
+
+        volume.addEventListener('change', function () {
+            window.location = `{% url "control" %}?volume=${volume.value}`;
+        }, false);
+
+    </script>
+</body>
+</html>
