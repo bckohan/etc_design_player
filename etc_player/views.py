@@ -1,5 +1,7 @@
 from django.views.generic import TemplateView
+from django.conf import settings
 from .models import PlaybackSettings, ManualOverride, Playlist
+import subprocess
 
 
 class ControlView(TemplateView):
@@ -10,6 +12,10 @@ class ControlView(TemplateView):
         context["settings"] = PlaybackSettings.load()
         context['playlists'] = Playlist.objects.all()
         return context
+
+    @staticmethod
+    def restart_audio():
+        subprocess.run(settings.RESTART_COMMAND.split())
 
     def get(self, request, *args, **kwargs):
         settings = PlaybackSettings.load()
@@ -26,9 +32,11 @@ class ControlView(TemplateView):
             ManualOverride.objects.create(
                 operation=ManualOverride.Operation.STOP
             )
+            self.restart_audio()
         elif do_play:
             ManualOverride.objects.create(
                 operation=ManualOverride.Operation.PLAY,
                 playlist=playlist
             )
+            self.restart_audio()
         return super().get(request, *args, **kwargs)

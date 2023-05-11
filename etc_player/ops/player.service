@@ -13,7 +13,9 @@ Group=mvc
 # see http://0pointer.net/blog/dynamic-users-with-systemd.html
 RuntimeDirectory=player
 WorkingDirectory=/var/www/player
-ExecStart=gunicorn -w 1 player:application
+Environment=PYTHONPATH=/opt/player/bin
+Environment=PLAYER_DIR=/var/www/player
+ExecStart=/opt/player/bin/gunicorn -w 2 --timeout=300 --graceful-timeout=10 etc_player.wsgi:application
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5

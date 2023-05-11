@@ -16,7 +16,7 @@ gunicorn = "^20.1.0"
 
 
 [tool.poetry.scripts]
-player = 'manage:main'
+player = 'etc_player.player:main'
 
 
 [tool.poetry.group.dev.dependencies]

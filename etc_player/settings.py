@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(
+    os.environ.get('PLAYER_DIR', Path(__file__).resolve().parent.parent)
+)
 
 
 # Quick-start development settings - unsuitable for production
@@ -124,4 +127,6 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-RESTART_COMMAND = 'sudo systemctl restart etc_player'
+RESTART_COMMAND = 'sudo systemctl restart audio'
+STATIC_ROOT = BASE_DIR / 'static'
+MEDIA_ROOT = BASE_DIR / 'media'

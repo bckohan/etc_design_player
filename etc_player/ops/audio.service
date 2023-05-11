@@ -11,9 +11,9 @@ Group=mvc
 # another option for an even more restricted service is
 # DynamicUser=yes
 # see http://0pointer.net/blog/dynamic-users-with-systemd.html
-RuntimeDirectory=audio
-WorkingDirectory=/var/www/player/audio
-ExecStart=player play_audio
+RuntimeDirectory=player
+WorkingDirectory=/var/www/player
+ExecStart=/opt/player/bin/player play_audio
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
