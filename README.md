@@ -6,8 +6,7 @@ ETC Design Audio Playlist Player
 
 Replace 192.168.1.106 with the correct IP address for your raspberry pi below when following this procedure:
 
- - Build this package:
-    `Download the latest package.`
+ - Download the latest package.
  - Install the package:
     * `scp ~/Downloads/etc_player-*.whl mvc@192.168.1.106:./`
     * `scp ./install.sh mvc@192.168.1.106:./`
