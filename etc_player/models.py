@@ -87,8 +87,10 @@ class Wave(models.Model):
                 frames = wave_file.getnframes()
                 rate = wave_file.getframerate()
                 self.length = timedelta(seconds=frames / float(rate))
+
         if not self.name:
             self.name = os.path.basename(self.file.name)
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -117,7 +119,7 @@ class PlaybackTimeRangeManager(models.Manager):
             next_sched = self.get_queryset().filter(day_of_week__gte=0).first()
         if next_sched is not None:
             dow = next_sched.day_of_week.value
-            return make_aware(
+            next_dt = make_aware(
                 datetime.combine(
                     (current_time.date() + timedelta(
                         days=(
@@ -127,7 +129,10 @@ class PlaybackTimeRangeManager(models.Manager):
                     )),
                     next_sched.start
                 )
-            ), next_sched.playlist
+            )
+            if next_dt < current_time:
+                next_dt += timedelta(days=7)
+            return next_dt, next_sched.playlist
         return None, None
 
 
