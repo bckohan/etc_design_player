@@ -11,10 +11,20 @@ class Command(BaseCommand):
     help = "Play the audio given the playback settings."
 
     CHUNK = 8192
+    USE_PYAUDIO = False
 
     settings = None
 
     def add_arguments(self, parser):
+
+        parser.add_argument(
+            '--pyaudio',
+            dest='pyaudio',
+            default=self.USE_PYAUDIO,
+            action='store_true',
+            help='Use pyaudio to play the audio instead of the configured '
+                 'play command.'
+        )
 
         parser.add_argument(
             '--chunk-size',
@@ -28,6 +38,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.CHUNK = options.get('chunk_size', self.CHUNK)
+        self.USE_PYAUDIO = options.get('pyaudio', self.USE_PYAUDIO)
         self.run()
 
     def run(self):
@@ -56,7 +67,10 @@ class Command(BaseCommand):
 
     def play_playlist(self, playlist):
         for wave_file in playlist.waves.all():
-            self.play_wave(wave_file)
+            if self.USE_PYAUDIO:
+                self.play_wave_pyaudio(wave_file)
+            else:
+                self.play_wave(wave_file)
             current_playlist = self.settings.current_playlist
             if playlist != current_playlist:
                 if current_playlist:

@@ -78,7 +78,7 @@
 </head>
 <body>
     <div class="d-flex justify-content-between">
-        <a href="https://www.emmatc.com/" target="_blank">
+        <a href="http://www.etcxdesign.com/" target="_blank">
             <img class="logo" src="{% static 'etc_player/ETCxDesign_Logo_Color.svg' %}">
         </a>
     </div>
@@ -114,6 +114,9 @@
                 <label for="volume" class="form-label">Volume</label>
                 <input type="range" class="form-range" id="volume" value="{{ settings.volume }}">
             </div>
+            <div class="mt-4">
+                <button type="button" class="btn btn-danger" onclick="reset()">Reset</button>
+            </div>
         </div>
     </div>
     <script>
@@ -133,6 +136,9 @@
             window.location = `{% url "control" %}?volume=${volume.value}`;
         }, false);
 
+        const reset = function() {
+            window.location = `{% url "control" %}?reset=1`;
+        }
     </script>
 </body>
 </html>
