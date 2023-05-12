@@ -3,9 +3,7 @@ from django.db.models import Q, Sum
 from django_enum import EnumField
 from enum_properties import IntEnumProperties, s
 from django.core.cache import cache
-from datetime import date, datetime
-from django.utils.timezone import localtime, make_aware
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.functional import cached_property
 from .utils import sizeof_fmt, duration_fmt
@@ -129,7 +127,7 @@ class Wave(models.Model):
 class PlaybackTimeRangeManager(models.Manager):
 
     def scheduled_playlist(self):
-        current_time = localtime()
+        current_time = datetime.now()
         return self.get_queryset().filter(
             Q(day_of_week=PlaybackTimeRange.DayOfWeek(current_time)) &
             Q(start__lte=current_time.time()) &
@@ -137,7 +135,7 @@ class PlaybackTimeRangeManager(models.Manager):
         ).first()
 
     def next_scheduled_time(self):
-        current_time = localtime()
+        current_time = datetime.now()
         current_dow = PlaybackTimeRange.DayOfWeek(current_time).value
         dow = current_dow + 1 if current_dow < 6 else 0
         next_sched = self.get_queryset().filter(
@@ -148,16 +146,14 @@ class PlaybackTimeRangeManager(models.Manager):
             next_sched = self.get_queryset().filter(day_of_week__gte=0).first()
         if next_sched is not None:
             dow = next_sched.day_of_week.value
-            next_dt = make_aware(
-                datetime.combine(
-                    (current_time.date() + timedelta(
-                        days=(
-                            dow + 7 - current_dow
-                            if dow < current_dow else dow - current_dow
-                        )
-                    )),
-                    next_sched.start
-                )
+            next_dt = datetime.combine(
+                (current_time.date() + timedelta(
+                    days=(
+                        dow + 7 - current_dow
+                        if dow < current_dow else dow - current_dow
+                    )
+                )),
+                next_sched.start
             )
             if next_dt < current_time:
                 next_dt += timedelta(days=7)
@@ -224,7 +220,7 @@ class ManualOverride(models.Model):
     operation = EnumField(Operation)
     timestamp = models.DateTimeField(
         db_index=True,
-        default=localtime,
+        default=datetime.now,
         null=False,
         blank=True
     )
@@ -254,7 +250,7 @@ class ManualOverride(models.Model):
 
     def __str__(self):
         return f'{self.operation.label} {self.effective_playlist.name} ' \
-               f'{localtime(self.timestamp)}'
+               f'{self.timestamp}'
 
     class Meta:
         ordering = ['-timestamp']
@@ -293,14 +289,14 @@ class PlaybackSettings(SingletonModel):
 
         :return: None if nothing should be playing, otherwise the playlist
         """
-        current_time = localtime()
+        current_time = datetime.now()
         override = ManualOverride.objects.first()
         scheduled = PlaybackTimeRange.objects.scheduled_playlist()
         if override is None:
             return getattr(scheduled, 'playlist', None)
         elif scheduled is None:
             if override.operation is override.Operation.PLAY:
-                override_ts = localtime(override.timestamp)
+                override_ts = override.timestamp
                 override_dow = PlaybackTimeRange.DayOfWeek(override_ts)
                 override_time = override_ts.time()
 
@@ -324,7 +320,7 @@ class PlaybackSettings(SingletonModel):
                     return override.playlist
             return None
         else:
-            override_time = localtime(override.timestamp)
+            override_time = override.timestamp
             override_dow = PlaybackTimeRange.DayOfWeek(override_time)
             if (
                 override_dow is not scheduled.day_of_week or

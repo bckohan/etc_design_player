@@ -1,7 +1,6 @@
 import subprocess
 from django.conf import settings
-from django.utils.timezone import localtime
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 last_restart = None
 
@@ -11,10 +10,10 @@ def restart_audio():
     global last_restart
     if (
         last_restart is None or
-        (localtime() - last_restart) > timedelta(seconds=1)
+        (datetime.now() - last_restart) > timedelta(seconds=1)
     ):
         subprocess.run(settings.RESTART_COMMAND.split())
-        last_restart = localtime()
+        last_restart = datetime.now()
 
 
 def set_volume(volume):

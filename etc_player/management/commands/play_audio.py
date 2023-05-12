@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from etc_player.models import PlaybackSettings, PlaybackTimeRange
-from django.utils.timezone import localtime
+from datetime import datetime
 from django.conf import settings
 import subprocess
 import wave
@@ -66,7 +66,7 @@ class Command(BaseCommand):
         if nxt_time is None:
             self.style.WARNING('No scheduled playbacks.')
             return
-        wait_seconds = (nxt_time - localtime()).total_seconds()
+        wait_seconds = (nxt_time - datetime.now()).total_seconds()
         self.stdout.write(
             self.style.SUCCESS(
                 f'Playing {nxt_list.name} in {wait_seconds} seconds @ '

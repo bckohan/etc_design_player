@@ -10,8 +10,7 @@ from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.db import transaction
-from datetime import timedelta
-from django.utils.timezone import localtime
+from datetime import timedelta, datetime
 from time import sleep
 import io
 import math
@@ -244,7 +243,7 @@ class PlayerTests(TestCase):
     def test_basic_schedule_use(self):
 
         # schedule into the near future - watch as playback should start
-        current_time = localtime()
+        current_time = datetime.now()
 
         start = current_time + timedelta(seconds=5)
         end = current_time + timedelta(seconds=8)
@@ -272,7 +271,7 @@ class PlayerTests(TestCase):
         self.assertIsNone(self.settings.current_playlist)
 
         # time range extension past current time should trigger restart
-        time_range.end = (localtime() + timedelta(seconds=5)).time()
+        time_range.end = (datetime.now() + timedelta(seconds=5)).time()
         time_range.save()
 
         self.assertTrue(self.restarted)
@@ -303,7 +302,7 @@ class PlayerTests(TestCase):
 
     def test_manual_override(self):
 
-        current_time = localtime()
+        current_time = datetime.now()
 
         start = current_time
         end = current_time + timedelta(seconds=5)
@@ -388,7 +387,7 @@ class PlayerTests(TestCase):
         self.assertFalse(self.volume_set)
         self.assertEqual(self.settings.current_playlist, self.playlist2)
 
-        start = localtime() + timedelta(seconds=2)
+        start = datetime.now() + timedelta(seconds=2)
         end = start + timedelta(seconds=3)
         time_range = PlaybackTimeRange.objects.create(
             day_of_week=PlaybackTimeRange.DayOfWeek(start),
