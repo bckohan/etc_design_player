@@ -12,6 +12,7 @@ class Command(BaseCommand):
 
     CHUNK = 8192
     USE_PYAUDIO = False
+    MAX_SLEEP = None
 
     settings = None
 
@@ -36,9 +37,19 @@ class Command(BaseCommand):
                  'Default: {self.CHUNK}'
         )
 
+        parser.add_argument(
+            '--max-sleep',
+            dest='max_sleep',
+            default=self.MAX_SLEEP,
+            type=int,
+            help=f'Limit sleeps to this many seconds. Default: no limit. This'
+                 f'may be useful if clock drift is an issue.'
+        )
+
     def handle(self, *args, **options):
         self.CHUNK = options.get('chunk_size', self.CHUNK)
         self.USE_PYAUDIO = options.get('pyaudio', self.USE_PYAUDIO)
+        self.MAX_SLEEP = options.get('max_sleep', self.MAX_SLEEP)
         self.run()
 
     def run(self):
@@ -62,7 +73,11 @@ class Command(BaseCommand):
                 f'{nxt_time}.'
             )
         )
-        time.sleep(wait_seconds)
+        time.sleep(
+            wait_seconds
+            if self.MAX_SLEEP is None
+            else min(wait_seconds, self.MAX_SLEEP)
+        )
         self.run()
 
     def play_playlist(self, playlist):

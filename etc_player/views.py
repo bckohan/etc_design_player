@@ -1,7 +1,5 @@
 from django.views.generic import TemplateView
-from django.conf import settings
 from .models import PlaybackSettings, ManualOverride, Playlist
-import subprocess
 
 
 class ControlView(TemplateView):
@@ -13,25 +11,12 @@ class ControlView(TemplateView):
         context['playlists'] = Playlist.objects.all()
         return context
 
-    @staticmethod
-    def restart_audio():
-        subprocess.run(settings.RESTART_COMMAND.split())
-
-    @staticmethod
-    def set_volume(volume):
-        cmd = settings.VOLUME_COMMAND.format(
-            volume=max(0, min(100, int(volume)))
-        ).split()
-        subprocess.run(cmd)
-
     def get(self, request, *args, **kwargs):
         settings = PlaybackSettings.load()
         if request.GET.get('reset', None) is not None:
             ManualOverride.objects.all().delete()
             settings.volume = PlaybackSettings._meta.get_field('volume').default
             settings.save()
-            self.set_volume(settings.volume)
-            self.restart_audio()
         else:
             do_stop = request.GET.get('stop', None) is not None
             do_play = request.GET.get('play', None) is not None
@@ -42,16 +27,13 @@ class ControlView(TemplateView):
             if volume is not None and settings.volume != volume:
                 settings.volume = volume
                 settings.save()
-                self.set_volume(volume)
             if do_stop:
                 ManualOverride.objects.create(
                     operation=ManualOverride.Operation.STOP
                 )
-                self.restart_audio()
             elif do_play:
                 ManualOverride.objects.create(
                     operation=ManualOverride.Operation.PLAY,
                     playlist=playlist
                 )
-                self.restart_audio()
         return super().get(request, *args, **kwargs)

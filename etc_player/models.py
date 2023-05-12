@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django_enum import EnumField
 from enum_properties import IntEnumProperties, s
 from django.core.cache import cache
@@ -7,6 +7,8 @@ from datetime import date, datetime
 from django.utils.timezone import localtime, make_aware
 from datetime import timedelta
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.functional import cached_property
+from .utils import sizeof_fmt, duration_fmt
 import wave
 import contextlib
 import os
@@ -45,6 +47,14 @@ class Playlist(models.Model):
         through='etc_player.PlaylistWave'
     )
 
+    @cached_property
+    def duration(self):
+        return self.waves.all().aggregate(Sum('duration'))['duration__sum']
+
+    @property
+    def duration_str(self):
+        return duration_fmt(self.duration)
+
     def __str__(self):
         return self.name
 
@@ -64,8 +74,13 @@ class PlaylistWave(models.Model):
 
     order = models.PositiveSmallIntegerField(
         null=False,
-        blank=False
+        blank=False,
+        default=0
     )
+
+    @property
+    def duration_str(self):
+        return self.wave.duration_str
 
     class Meta:
         ordering = ['order']
@@ -75,23 +90,37 @@ class Wave(models.Model):
 
     file = models.FileField(upload_to='uploads/')
     name = models.CharField(blank=True, default='', max_length=255)
-    length = models.DurationField(null=True, default=None, blank=True)
+    duration = models.DurationField(null=True, default=None, blank=True)
+
+    @property
+    def duration_str(self):
+        return duration_fmt(self.duration)
 
     def save(self, *args, **kwargs):
         if (
-            self.length is None and
+            self.duration is None and
             self.file.path is not None and
             os.path.exists(self.file.path)
         ):
             with contextlib.closing(wave.open(self.file.path, 'r')) as wave_file:
                 frames = wave_file.getnframes()
                 rate = wave_file.getframerate()
-                self.length = timedelta(seconds=frames / float(rate))
+                self.duration = timedelta(seconds=frames / float(rate))
+                if kwargs.get('update_fields', None):
+                    kwargs['update_fields'].append('duration')
 
         if not self.name:
             self.name = os.path.basename(self.file.name)
+            if kwargs.get('update_fields', None):
+                kwargs['update_fields'].append('name')
 
         super().save(*args, **kwargs)
+
+    @property
+    def size_str(self):
+        if self.file.path is not None and os.path.exists(self.file.path):
+            return sizeof_fmt(os.path.getsize(self.file.path))
+        return ''
 
     def __str__(self):
         return self.name
@@ -157,9 +186,24 @@ class PlaybackTimeRange(models.Model):
             return super()._missing_(value)
 
     day_of_week = EnumField(DayOfWeek, unique=True)
-    playlist = models.ForeignKey(Playlist, on_delete=models.CASCADE)
+    playlist = models.ForeignKey(
+        Playlist,
+        on_delete=models.CASCADE,
+        blank=True
+    )
     start = models.TimeField(db_index=True)
     end = models.TimeField(db_index=True)
+
+    def save(self, *args, **kwargs):
+        if not hasattr(self, 'playlist') or self.playlist is None:
+            self.playlist = (
+                PlaybackSettings.load().default_playlist or
+                Playlist.objects.first()
+            )
+            if kwargs.get('update_fields', None):
+                kwargs['update_fields'].append('playlist')
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.day_of_week.label} {self.start} - {self.end}'
@@ -178,7 +222,13 @@ class ManualOverride(models.Model):
         STOP = 1, 'Stop'
 
     operation = EnumField(Operation)
-    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+    timestamp = models.DateTimeField(
+        db_index=True,
+        default=localtime,
+        null=False,
+        blank=True
+    )
+
     playlist = models.ForeignKey(
         Playlist,
         on_delete=models.PROTECT,
@@ -187,16 +237,24 @@ class ManualOverride(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        if self.playlist is None:
+        if not hasattr(self, 'playlist') or self.playlist is None:
             if self.operation is ManualOverride.Operation.PLAY:
                 self.playlist = PlaybackSettings.load().default_playlist
             else:
-                self.playlist = PlaybackTimeRange.objects.scheduled_playlist().playlist
+                self.playlist = getattr(
+                    PlaybackTimeRange.objects.scheduled_playlist(),
+                    'playlist',
+                    None
+                )
         super().save(*args, **kwargs)
 
     @property
     def effective_playlist(self):
         return self.playlist or PlaybackSettings.load().default_playlist
+
+    def __str__(self):
+        return f'{self.operation.label} {self.effective_playlist.name} ' \
+               f'{localtime(self.timestamp)}'
 
     class Meta:
         ordering = ['-timestamp']
@@ -242,14 +300,15 @@ class PlaybackSettings(SingletonModel):
             return getattr(scheduled, 'playlist', None)
         elif scheduled is None:
             if override.operation is override.Operation.PLAY:
-                override_dow = PlaybackTimeRange.DayOfWeek(override.timestamp)
-                override_time = override.timestamp.time()
+                override_ts = localtime(override.timestamp)
+                override_dow = PlaybackTimeRange.DayOfWeek(override_ts)
+                override_time = override_ts.time()
 
-                tot_days_between = (current_time - override.timestamp).days
+                tot_days_between = (current_time - override_ts).days
                 if tot_days_between < 7:
                     days_between = set([
                         PlaybackTimeRange.DayOfWeek(
-                            override.timestamp + timedelta(days=day)
+                            override_ts + timedelta(days=day)
                         )
                         for day in range(0, tot_days_between) if day > 0
                     ])
@@ -265,15 +324,19 @@ class PlaybackSettings(SingletonModel):
                     return override.playlist
             return None
         else:
-            override_dow = PlaybackTimeRange.DayOfWeek(override.timestamp)
+            override_time = localtime(override.timestamp)
+            override_dow = PlaybackTimeRange.DayOfWeek(override_time)
             if (
                 override_dow is not scheduled.day_of_week or
-                override.timestamp.time() < scheduled.start
+                override_time.time() < scheduled.start
             ):
                 return scheduled.playlist
             elif override.operation is override.Operation.PLAY:
                 return override.playlist
         return None
+
+    def __str__(self):
+        return 'Settings'
 
     class Meta:
         verbose_name_plural = 'Playback Settings'

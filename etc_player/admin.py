@@ -45,13 +45,35 @@ class PlaylistWaveAdmin(admin.TabularInline):
 class PlaylistAdmin(admin.ModelAdmin):
     inlines = [PlaylistWaveAdmin]
 
+    readonly_fields = ['duration_str']
+    list_display = ('name', 'duration_str')
+
+    def duration_str(self, obj):
+        return obj.duration_str
+
+    duration_str.short_description = 'Duration'
+
 
 class WaveAdmin(admin.ModelAdmin):
-    readonly_fields = ['length']
+
+    readonly_fields = ['duration_str', 'size']
+
+    list_display = ('name', 'duration_str', 'size')
+
+    def size(self, obj):
+        return obj.size_str
+
+    def duration_str(self, obj):
+        return obj.duration_str
+
+    duration_str.short_description = 'Duration'
+    size.short_description = 'File Size'
 
 
 class ManualOverrideAdmin(admin.ModelAdmin):
-    pass
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('playlist')
 
 
 admin.site.register(PlaybackTimeRange, PlaybackTimeRangeAdmin)

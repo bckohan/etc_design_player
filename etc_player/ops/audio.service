@@ -15,7 +15,7 @@ RuntimeDirectory=player
 WorkingDirectory=/var/www/player
 Environment=PYTHONPATH=/opt/player/bin
 Environment=PLAYER_DIR=/var/www/player
-ExecStart=/opt/player/bin/player play_audio
+ExecStart=/opt/player/bin/player play_audio --max-sleep 3600
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
