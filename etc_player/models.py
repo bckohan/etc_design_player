@@ -88,7 +88,12 @@ class Wave(models.Model):
 
     file = models.FileField(upload_to='uploads/')
     name = models.CharField(blank=True, default='', max_length=255)
-    duration = models.DurationField(null=True, default=None, blank=True)
+    duration = models.DurationField(
+        null=True,
+        default=None,
+        blank=True,
+        editable=False
+    )
 
     @property
     def duration_str(self):
@@ -97,10 +102,9 @@ class Wave(models.Model):
     def save(self, *args, **kwargs):
         if (
             self.duration is None and
-            self.file.path is not None and
-            os.path.exists(self.file.path)
+            self.file.file is not None
         ):
-            with contextlib.closing(wave.open(self.file.path, 'r')) as wave_file:
+            with contextlib.closing(wave.open(self.file.file, 'r')) as wave_file:
                 frames = wave_file.getnframes()
                 rate = wave_file.getframerate()
                 self.duration = timedelta(seconds=frames / float(rate))
@@ -221,6 +225,9 @@ class PlaybackTimeRange(models.Model):
         SATURDAY  = 6, 'Saturday'
         SUNDAY    = 7, 'Sunday'
 
+        def __str__(self):
+            return self.label
+
         @classmethod
         def _missing_(cls, value):
             if isinstance(value, (date, datetime)):
@@ -248,7 +255,10 @@ class PlaybackTimeRange(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.day_of_week.label} {self.start} - {self.end}'
+        return f'{self.day_of_week.label}' \
+               f'[{self.start.strftime("%I:%M %p")} - ' \
+               f'{self.end.strftime("%I:%M %p")}] ' \
+               f'({self.playlist.name})'
 
     class Meta:
         ordering = ['day_of_week', 'start']

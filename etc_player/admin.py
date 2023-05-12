@@ -31,6 +31,25 @@ class PlaybackTimeRangeForm(forms.ModelForm):
 class PlaybackTimeRangeAdmin(admin.ModelAdmin):
     form = PlaybackTimeRangeForm
 
+    list_display = ('weekday', 'start_str', 'end_str', 'playlist')
+
+    def weekday(self, obj):
+        return obj.day_of_week.label
+
+    weekday.short_description = 'Weekday'
+
+    def start_str(self, obj):
+        return obj.start.strftime("%I:%M %p")
+
+    def end_str(self, obj):
+        return obj.end.strftime("%I:%M %p")
+
+    start_str.short_description = 'Start'
+    end_str.short_description = 'End'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('playlist')
+
 
 class PlaybackSettingsAdmin(admin.ModelAdmin):
     pass

@@ -163,8 +163,6 @@ class PlayerTests(TransactionTestCase):
 
         self.wave1 = Wave.objects.create(file=wave_file1)
         self.wave2 = Wave.objects.create(file=wave_file2)
-        self.wave1.save()
-        self.wave2.save()
 
         self.wave_path1 = self.wave1.file.path
         self.wave_path2 = self.wave2.file.path
@@ -547,7 +545,6 @@ class TestFileDeletion(TransactionTestCase):
                 bg3.get_bytes(), name='wave_file3.wav'
             )
         )
-        self.wave_file.save()
         self.wave_file_path = self.wave_file.file.path
 
     def tearDown(self) -> None:
