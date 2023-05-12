@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F, CheckConstraint
 from django_enum import EnumField
 from enum_properties import IntEnumProperties, s
 from django.core.cache import cache
@@ -134,30 +134,76 @@ class PlaybackTimeRangeManager(models.Manager):
             Q(end__gte=current_time.time())
         ).first()
 
-    def next_scheduled_time(self):
+    def last_scheduled_playlist(self):
+        """
+        Returns a 2-tuple where the first element is the start datetime of the
+        next scheduled playback and the second element is the PlaybackTimeRange
+        object.
+        """
         current_time = datetime.now()
-        current_dow = PlaybackTimeRange.DayOfWeek(current_time).value
-        dow = current_dow + 1 if current_dow < 6 else 0
-        next_sched = self.get_queryset().filter(
-            Q(day_of_week__gte=dow) |
-            (Q(day_of_week=current_dow) & Q(start__gte=current_time.time()))
-        ).first()
-        if next_sched is None:
-            next_sched = self.get_queryset().filter(day_of_week__gte=0).first()
-        if next_sched is not None:
-            dow = next_sched.day_of_week.value
-            next_dt = datetime.combine(
-                (current_time.date() + timedelta(
-                    days=(
-                        dow + 7 - current_dow
-                        if dow < current_dow else dow - current_dow
-                    )
-                )),
-                next_sched.start
+        dow = PlaybackTimeRange.DayOfWeek(current_time)
+        earlier_this_week = self.get_queryset().filter(
+            (Q(day_of_week=dow) & Q(end__lt=current_time.time())) |
+            Q(day_of_week__lt=PlaybackTimeRange.DayOfWeek(current_time))
+        ).order_by('-day_of_week').first()
+        if earlier_this_week:
+            return (
+                datetime.combine(
+                    current_time - timedelta(
+                        days=dow.value - earlier_this_week.day_of_week.value
+                    ), earlier_this_week.start
+                ),
+                earlier_this_week
             )
-            if next_dt < current_time:
-                next_dt += timedelta(days=7)
-            return next_dt, next_sched.playlist
+        later_last_week = self.get_queryset().filter(
+            (Q(day_of_week=dow) & Q(end__gt=current_time.time())) |
+            Q(day_of_week__gt=dow)
+        ).order_by('-day_of_week').first()
+        if later_last_week:
+            return (
+                datetime.combine(
+                    current_time - timedelta(
+                        days=dow.value + 7-later_last_week.day_of_week.value
+                    ), later_last_week.start
+                ),
+                later_last_week
+            )
+        return None, None
+
+    def next_scheduled_playlist(self):
+        """
+        Returns a 2-tuple where the first element is the start datetime of the
+        next scheduled playback and the second element is the PlaybackTimeRange
+        object.
+        """
+        current_time = datetime.now()
+        dow = PlaybackTimeRange.DayOfWeek(current_time)
+        later_this_week = self.get_queryset().filter(
+            (Q(day_of_week=dow) & Q(start__gt=current_time.time())) |
+            Q(day_of_week__gt=PlaybackTimeRange.DayOfWeek(current_time))
+        ).order_by('day_of_week').first()
+        if later_this_week:
+            return (
+                datetime.combine(
+                    current_time + timedelta(
+                        days=later_this_week.day_of_week.value - dow.value
+                    ), later_this_week.start
+                ),
+                later_this_week
+            )
+        next_week = self.get_queryset().filter(
+            (Q(day_of_week=dow) & Q(start__lt=current_time.time())) |
+            Q(day_of_week__lt=dow)
+        ).order_by('day_of_week').first()
+        if next_week:
+            return (
+                datetime.combine(
+                    current_time + timedelta(
+                        days=(7-dow.value) + next_week.day_of_week.value
+                    ), next_week.start
+                ),
+                next_week
+            )
         return None, None
 
 
@@ -167,13 +213,13 @@ class PlaybackTimeRange(models.Model):
 
     class DayOfWeek(IntEnumProperties, s('label', case_fold=True)):
 
-        SUNDAY    = 0, 'Sunday'
         MONDAY    = 1, 'Monday'
         TUESDAY   = 2, 'Tuesday'
         WEDNESDAY = 3, 'Wednesday'
         THURSDAY  = 4, 'Thursday'
         FRIDAY    = 5, 'Friday'
         SATURDAY  = 6, 'Saturday'
+        SUNDAY    = 7, 'Sunday'
 
         @classmethod
         def _missing_(cls, value):
@@ -208,6 +254,12 @@ class PlaybackTimeRange(models.Model):
         ordering = ['day_of_week', 'start']
         verbose_name_plural = 'Schedule'
         verbose_name = 'Schedule'
+        constraints = [
+            CheckConstraint(
+                check=Q(start__lt=F('end')),
+                name='%(app_label)s_%(class)s_start_lt_end'
+            )
+        ]
 
 
 class ManualOverride(models.Model):
@@ -289,37 +341,29 @@ class PlaybackSettings(SingletonModel):
 
         :return: None if nothing should be playing, otherwise the playlist
         """
-        current_time = datetime.now()
+        # remove ManualOverrides that are more than 24 hours old
+        ManualOverride.objects.filter(
+            timestamp__lt=datetime.now()-timedelta(days=1)
+        ).delete()
+
         override = ManualOverride.objects.first()
         scheduled = PlaybackTimeRange.objects.scheduled_playlist()
         if override is None:
             return getattr(scheduled, 'playlist', None)
         elif scheduled is None:
+            # if we have an override but no currently scheduled playlist
+            # that override may have occurred before the last scheduled
+            # playlist, during it, or after it. Overrides only apply if they
+            # occurred after the start of the last scheduled playlist
             if override.operation is override.Operation.PLAY:
-                override_ts = override.timestamp
-                override_dow = PlaybackTimeRange.DayOfWeek(override_ts)
-                override_time = override_ts.time()
-
-                tot_days_between = (current_time - override_ts).days
-                if tot_days_between < 7:
-                    days_between = set([
-                        PlaybackTimeRange.DayOfWeek(
-                            override_ts + timedelta(days=day)
-                        )
-                        for day in range(0, tot_days_between) if day > 0
-                    ])
-                    scheduled_since = PlaybackTimeRange.objects.filter(
-                        (Q(day_of_week=override_dow) & Q(
-                            start__gte=override_time))
-                        | Q(day_of_week__in=days_between)
-                    ).first()
-                else:
-                    scheduled_since = True
-
-                if not scheduled_since:
+                last_start, last_sched = PlaybackTimeRange.objects.last_scheduled_playlist()
+                if last_sched is None or last_start < override.timestamp:
                     return override.playlist
             return None
         else:
+            # if we have both an override and a currently scheduled playlist,
+            # use the override if it is more recent than the start of the
+            # scheduled playlist
             override_time = override.timestamp
             override_dow = PlaybackTimeRange.DayOfWeek(override_time)
             if (

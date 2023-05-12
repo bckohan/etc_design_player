@@ -20,7 +20,8 @@ def check_restart(sender, instance, **kwargs):
     """Restart audio if the schedule has changed."""
     from .models import PlaybackSettings
     if getattr(instance, '_now_playing', None) != PlaybackSettings.load().current_playlist:
-        restart_audio()
+        # restart audio is throttled so we want to do it at the end
+        transaction.on_commit(lambda: restart_audio())
 
 
 def do_delete(path):

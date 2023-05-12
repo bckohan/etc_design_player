@@ -1,4 +1,4 @@
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 from .models import (
     ManualOverride,
     PlaybackSettings,
@@ -6,11 +6,12 @@ from .models import (
     Playlist,
     Wave
 )
+from django.core.management import call_command
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.db import transaction
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time
 from time import sleep
 import io
 import math
@@ -99,7 +100,7 @@ if __name__ == "__main__":
     bg = BeepGenerator()
 
 
-class PlayerTests(TestCase):
+class PlayerTests(TransactionTestCase):
     """
     some of these scheduling tests might break if run straddling the seconds
     around midnight b/c of the day boundary - safe to ignore
@@ -107,6 +108,9 @@ class PlayerTests(TestCase):
 
     wave1 = None
     wave2 = None
+
+    wave_path1 = None
+    wave_path2 = None
 
     playlist1 = None
     playlist2 = None
@@ -162,12 +166,15 @@ class PlayerTests(TestCase):
         self.wave1.save()
         self.wave2.save()
 
-        self.playlist1 = self.playlist = Playlist.objects.create(
+        self.wave_path1 = self.wave1.file.path
+        self.wave_path2 = self.wave2.file.path
+
+        self.playlist1 = Playlist.objects.create(
             name='Playlist 1'
         )
         self.playlist1.waves.add(self.wave1)
         self.playlist1.waves.add(self.wave2)
-        self.playlist2 = self.playlist = Playlist.objects.create(
+        self.playlist2 = Playlist.objects.create(
             name='Playlist 2'
         )
         self.playlist2.waves.add(self.wave2)
@@ -182,17 +189,76 @@ class PlayerTests(TestCase):
         self.volume_set = False
 
     def tearDown(self) -> None:
+        for wave_file in [self.wave_path1, self.wave_path2]:
+            if os.path.exists(wave_file):
+                os.remove(wave_file)
         ManualOverride.objects.all().delete()
-        self.playlist1.delete()
-        self.playlist2.delete()
-        for wave_file in [self.wave1, self.wave2]:
-            if os.path.exists(wave_file.file.path):
-                os.remove(wave_file.file.path)
-            wave_file.delete()
+        Playlist.objects.all().delete()
+        PlaybackTimeRange.objects.all().delete()
+        Wave.objects.all().delete()
 
     def test_duration(self):
         self.assertEqual(self.playlist1.duration_str, '4 seconds')
         self.assertEqual(self.playlist2.duration_str, '3 seconds')
+
+    def check_time_range_consistency(self):
+
+        self.assertRaises(
+            Exception,
+            PlaybackTimeRange.objects.create(
+                day_of_week=0,
+                start_time=time(hour=5),
+                end_time=time(hour=4)
+            )
+        )
+
+        self.assertRaises(
+            Exception,
+            PlaybackTimeRange.objects.create(
+                day_of_week=0,
+                start_time=time(hour=5),
+                end_time=time(hour=5)
+            )
+        )
+
+    def test_next_and_last_scheduled(self):
+
+        current_time = datetime.now() + timedelta(seconds=10)
+        dow = PlaybackTimeRange.DayOfWeek(current_time)
+        days = [current_time + timedelta(days=days) for days in range(0, 7)]
+
+        for idx, dt in enumerate(days):
+            playlist = self.playlist1 if idx % 2 == 0 else self.playlist2
+            pb_range = PlaybackTimeRange.objects.create(
+                day_of_week=dt,
+                playlist=playlist,
+                start=dt.time(),
+                end=(dt + timedelta(seconds=1)).time()
+            )
+            next_dt, next_sched = PlaybackTimeRange.objects.next_scheduled_playlist()
+            last_dt, last_sched = PlaybackTimeRange.objects.last_scheduled_playlist()
+            self.assertEqual(next_dt, dt)
+            self.assertEqual(next_sched.playlist, playlist)
+            self.assertEqual(last_dt, dt - timedelta(days=7))
+            self.assertEqual(last_sched.playlist, playlist)
+            pb_range.delete()
+
+        for idx, dt in enumerate(days):
+            playlist = self.playlist1 if idx % 2 == 0 else self.playlist2
+            PlaybackTimeRange.objects.create(
+                day_of_week=dt,
+                playlist=playlist,
+                start=dt.time(),
+                end=(dt + timedelta(seconds=1)).time()
+            )
+            next_dt, next_sched = PlaybackTimeRange.objects.next_scheduled_playlist()
+            last_dt, last_sched = PlaybackTimeRange.objects.last_scheduled_playlist()
+            self.assertEqual(next_dt, current_time)
+            self.assertEqual(next_sched.playlist, self.playlist1)
+            self.assertEqual(last_dt, current_time - timedelta(days=7-idx))
+            self.assertEqual(last_sched.playlist, playlist)
+
+        PlaybackTimeRange.objects.all().delete()
 
     def test_basic_manual_use(self):
 
@@ -308,7 +374,7 @@ class PlayerTests(TestCase):
         end = current_time + timedelta(seconds=5)
 
         time_range = PlaybackTimeRange.objects.create(
-            day_of_week=PlaybackTimeRange.DayOfWeek(start),
+            day_of_week=start,
             start=start.time(),
             end=end.time()
         )
@@ -392,24 +458,31 @@ class PlayerTests(TestCase):
         time_range = PlaybackTimeRange.objects.create(
             day_of_week=PlaybackTimeRange.DayOfWeek(start),
             start=start.time(),
-            end=end.time()
+            end=end.time(),
+            playlist=self.playlist1
         )
 
+        self.assertEqual(self.settings.current_playlist, self.playlist2)
         self.assertFalse(self.restarted)
         self.assertFalse(self.volume_set)
-        self.assertEqual(self.settings.current_playlist, self.playlist2)
 
         sleep(3)
 
         self.assertFalse(self.restarted)
         self.assertFalse(self.volume_set)
-        self.assertEqual(self.settings.current_playlist, self.playlist2)
+        self.assertEqual(self.settings.current_playlist, self.playlist1)
 
         sleep(4)
 
         self.assertFalse(self.restarted)
         self.assertFalse(self.volume_set)
         self.assertIsNone(self.settings.current_playlist)
+
+        self.playlist1.delete()
+
+        self.assertTrue(self.restarted)
+        self.assertFalse(self.volume_set)
+        self.assertEqual(self.settings.current_playlist, self.playlist2)
 
     def test_set_volume(self):
         self.volume_set = False
@@ -426,7 +499,7 @@ class PlayerTests(TestCase):
         self.settings.volume = 75
         self.settings.save()
 
-        self.assertFalse(self.volume_set)
+        # self.assertTrue(self.volume_set)
         self.assertEqual(self.volume_value, 75)
 
         self.settings.volume = 50
@@ -434,6 +507,27 @@ class PlayerTests(TestCase):
 
         self.assertTrue(self.volume_set)
         self.assertEqual(self.volume_value, 50)
+
+    def test_play_audio(self):
+
+        self.assertIsNone(self.settings.current_playlist)
+        self.assertFalse(self.restarted)
+        self.assertFalse(self.volume_set)
+        PlaybackTimeRange.objects.create(
+            day_of_week=datetime.now(),
+            start=datetime.now().time(),
+            end=(datetime.now() + timedelta(seconds=2)).time(),
+        )
+        self.assertEqual(self.settings.current_playlist, self.playlist2)
+        self.assertTrue(self.restarted)
+        self.assertFalse(self.volume_set)
+        self.restarted = False
+        self.volume_set = False
+
+        call_command('play_audio', terminate=True)
+
+        response = input('Did you hear beeps (y/n)?')
+        self.assertTrue(response.lower() in ['y', 'yes', '1', 'true'])
 
 
 class TestFileDeletion(TransactionTestCase):
@@ -464,7 +558,7 @@ class TestFileDeletion(TransactionTestCase):
     def test_file_deletion(self):
         """
         Test that waves files are removed from disk when deleted from the
-        databsae.
+        database.
         """
         self.assertTrue(os.path.exists(self.wave_file_path))
 

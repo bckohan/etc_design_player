@@ -13,6 +13,7 @@ class Command(BaseCommand):
     CHUNK = 8192
     USE_PYAUDIO = False
     MAX_SLEEP = None
+    TERMINATE = False
 
     settings = None
 
@@ -46,10 +47,19 @@ class Command(BaseCommand):
                  f'may be useful if clock drift is an issue.'
         )
 
+        parser.add_argument(
+            '--terminate',
+            dest='terminate',
+            default=self.TERMINATE,
+            action='store_true',
+            help='Terminate if nothing scheduled to play immediately.'
+        )
+
     def handle(self, *args, **options):
         self.CHUNK = options.get('chunk_size', self.CHUNK)
         self.USE_PYAUDIO = options.get('pyaudio', self.USE_PYAUDIO)
         self.MAX_SLEEP = options.get('max_sleep', self.MAX_SLEEP)
+        self.TERMINATE = options.get('terminate', self.TERMINATE)
         self.run()
 
     def run(self):
@@ -62,14 +72,14 @@ class Command(BaseCommand):
             self.play_playlist(playlist)
             playlist = self.settings.current_playlist
 
-        nxt_time, nxt_list = PlaybackTimeRange.objects.next_scheduled_time()
-        if nxt_time is None:
+        nxt_time, next_sched = PlaybackTimeRange.objects.next_scheduled_playlist()
+        if nxt_time is None or self.TERMINATE:
             self.style.WARNING('No scheduled playbacks.')
             return
         wait_seconds = (nxt_time - datetime.now()).total_seconds()
         self.stdout.write(
             self.style.SUCCESS(
-                f'Playing {nxt_list.name} in {wait_seconds} seconds @ '
+                f'Playing {next_sched.playlist.name} in {wait_seconds} seconds @ '
                 f'{nxt_time}.'
             )
         )
@@ -124,8 +134,11 @@ class Command(BaseCommand):
     def play_wave(self, wave_file):
         play_cmd = getattr(settings, 'PLAY_COMMAND', None)
         if play_cmd:
-            subprocess.run(
-                play_cmd.format(wave_file=wave_file.file.path).split()
-            )
+            try:
+                subprocess.run(
+                    play_cmd.format(wave_file=wave_file.file.path).split()
+                )
+            except Exception:
+                self.play_wave_pyaudio(wave_file)
         else:
             self.play_wave_pyaudio(wave_file)

@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 import os
 import sys
-import time
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(
@@ -26,11 +25,9 @@ TEST = 'test' in sys.argv
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-qdx528ho(@d9yl*$0euxdu^)#^_c-!^+*id+kk6h81kkwtqh_*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(int(os.environ.get('PLAYER_DEBUG', 1)))
 
 ALLOWED_HOSTS = ['*']
 
@@ -137,3 +134,34 @@ PLAY_COMMAND = 'aplay {wave_file}'
 
 STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+SECRETS_DIR = Path(BASE_DIR) / 'secrets'
+
+
+def generate_secret_key(filename):
+    from django.core.management.utils import get_random_secret_key
+    with open(filename, 'w') as f:
+        f.write("%s\n" % get_random_secret_key())
+    os.chmod(filename, 0o640)
+
+
+def get_secret_key(filename):
+    with open(filename, 'r') as f:
+        return f.readlines()[0]
+
+
+if not os.path.exists(SECRETS_DIR):
+    os.makedirs(SECRETS_DIR)
+
+
+sk_file = os.path.join(SECRETS_DIR, 'secret_key')
+
+if not os.path.exists(sk_file):
+    generate_secret_key(sk_file)
+
+SECRET_KEY = get_secret_key(sk_file)
+
+if len(SECRET_KEY) == 0:
+    generate_secret_key(sk_file)
+    SECRET_KEY = get_secret_key(sk_file)
