@@ -129,12 +129,22 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 RESTART_COMMAND = 'sudo systemctl restart audio'
-VOLUME_COMMAND = 'amixer set Master {volume}%'
+
+VOLUME_COMMAND = 'sudo amixer sset PCM -M {volume}%'
+
+# when not running as root - this command would work - Master not available as
+# root
+# VOLUME_COMMAND = 'amixer sset Master {volume}%'
+
 PLAY_COMMAND = 'aplay {wave_file}'
 
 STATIC_ROOT = BASE_DIR / 'static'
 MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = 'media/'
 
+# rwx for user and group
+FILE_UPLOAD_PERMISSIONS = 0o770
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o770
 
 SECRETS_DIR = Path(BASE_DIR) / 'secrets'
 

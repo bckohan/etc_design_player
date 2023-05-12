@@ -5,12 +5,8 @@ After=network.target
 
 [Service]
 Type=simple
-# the specific user that our service will run as
-User=mvc
-Group=mvc
-# another option for an even more restricted service is
-# DynamicUser=yes
-# see http://0pointer.net/blog/dynamic-users-with-systemd.html
+User=root
+Group=root
 RuntimeDirectory=player
 WorkingDirectory=/var/www/player
 Environment=PYTHONPATH=/opt/player/bin

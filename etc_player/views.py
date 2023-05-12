@@ -24,8 +24,8 @@ class ControlView(TemplateView):
             playlist = request.GET.get('playlist', None)
             if playlist:
                 playlist = Playlist.objects.get(pk=playlist)
-            if volume is not None and settings.volume != volume:
-                settings.volume = volume
+            if volume is not None and settings.volume != int(volume):
+                settings.volume = int(volume)
                 settings.save()
             if do_stop:
                 ManualOverride.objects.create(

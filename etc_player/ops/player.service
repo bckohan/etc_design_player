@@ -5,18 +5,14 @@ After=network.target
 
 [Service]
 Type=notify
-# the specific user that our service will run as
-User=mvc
-Group=mvc
-# another option for an even more restricted service is
-# DynamicUser=yes
-# see http://0pointer.net/blog/dynamic-users-with-systemd.html
+User=root
+Group=root
 RuntimeDirectory=player
 WorkingDirectory=/var/www/player
 Environment=PYTHONPATH=/opt/player/bin
 Environment=PLAYER_DIR=/var/www/player
 Environment=PLAYER_DEBUG=0
-ExecStart=/opt/player/bin/gunicorn -w 2 --timeout=300 --graceful-timeout=10 etc_player.wsgi:application
+ExecStart=/opt/player/bin/gunicorn -w 2 --timeout=600 --graceful-timeout=10 etc_player.wsgi:application
 ExecReload=/bin/kill -s HUP $MAINPID
 KillMode=mixed
 TimeoutStopSec=5
