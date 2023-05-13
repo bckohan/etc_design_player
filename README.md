@@ -17,7 +17,7 @@ preferences open, also enable ssh access by selecting the "Interfaces"
 and toggling SSH on. Click save and reboot.
 
 Most wifi networks will allow you to access your Raspberry Pi over the network
-using the hostname you set. Only if your network does not you will have to use
+using the hostname you set. Only if your network does not will you have to use
 its IP address instead. There are numerous ways 
 [there are numerous ways to do determine the IP](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F) - 
 but be aware that power outages and other circumstances can change the IP 
@@ -52,14 +52,14 @@ asking your local tech support for help.
 Most wifi networks will allow you to access the scheduler interface through
 `http://<hostname>/admin`. If this does not work you may need to use the IP
 address instead. As mentioned before there are numerous ways to determine the
-IP 
+IP.
 
 When accessing the admin the username/password will be the credentials you 
 setup when you ran install.sh.
 
 Upload a wave file by adding a wave. There is no progress indicator on the wave
 file upload interface - so be patient and wait for the page to refresh before 
-navigating.
+navigating after you hit save.
 
 Scheduling is done per-day-of-the-week. Only one contiguous block of time per
 day can be scheduled. To schedule a playback, create a playlist from one or
