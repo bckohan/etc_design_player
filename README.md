@@ -13,11 +13,11 @@ when following this procedure:
  - Install the package (via Raspberry PI Desktop):
     * Unzip the downloaded package.
     * Double click on the install.sh file and select "execute in terminal".
- - Install the package (via terminal, replace IP with your raspberry pi's IP address):
-    * `scp ~/Downloads/etc_player.zip mvc@192.168.1.106:./`
-    * `ssh mvc@192.168.1.106`
-    * `mvc@raspberrypi:~ $> gunzip ./etc_player.zip`
-    * `mvc@raspberrypi:~ $> cd ./etc_player`
-    * `mvc@raspberrypi:~ $> ./install.sh`
+ - Install the package (via terminal, replace IP and "pi" with your raspberry pi's IP address and username respectively):
+    * `scp ~/Downloads/etc_player.zip pi@192.168.1.106:./`
+    * `ssh pi@192.168.1.106`
+    * `pi@raspberrypi:~ $> gunzip ./etc_player.zip`
+    * `pi@raspberrypi:~ $> cd ./etc_player`
+    * `pi@raspberrypi:~ $> ./install.sh`
  - Follow all prompts.
  - Configure your playback: http://192.168.1.106/admin
