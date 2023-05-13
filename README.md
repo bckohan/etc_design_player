@@ -32,12 +32,14 @@ asking your local tech support for help.
  - To install from your computer's terminal: (replace <hostname> and <pi> with 
    your Pi's hostname and account username respectively). 
 
-    * `ssh <pi>@<hostname>`
-    * `curl https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip --output ./etc_player.zip`
-    * `gunzip ./etc_player.zip`
-    * `cd ./etc_player`
-    * `./install.sh`
-   
+    ```bash
+      ssh <pi>@<hostname>
+      wget --no-check-certificate --content-disposition https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip
+      gunzip ./etc_player.zip
+      cd ./etc_player
+      ./install.sh
+    ```
+
  - After a few minutes the install script will prompt you to enter a username
    and password. This will be the account you use to login to the web interface
    to configure the playback. Once the install script disappears the install
