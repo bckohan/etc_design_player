@@ -48,3 +48,9 @@ Run the development server:
 `poetry run ./etc_player/player.py migrate`
 `poetry run ./etc_player/player.py runserver`
 
+The operational environment is configured using scripts located in etc_player/ops.
+install.sh can be referenced to see how they are installed onto the system. The architecure
+serves the Django web interface using gunicorn proxied through nginx. The audio player script
+is managed as a simple always-on systemd service which makes the audo playback robost to
+power interruptions and other system failures.
+
