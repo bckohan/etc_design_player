@@ -45,14 +45,14 @@ asking your local tech support for help.
    to configure the playback. Once the install script disappears the install
    is complete.
  - To configure your playback from a computer on the same wifi network you can
-   access from: http://<hostname>/admin where hostname is the hostname you set
+   access from: http://hostname/admin where hostname is the hostname you set
    earlier or if on your Raspberry Pi's desktop you may also use
    http://localhost/admin
 
 ## Usage
 
 Most wifi networks will allow you to access the scheduler interface through
-`http://<hostname>/admin`. If this does not work you may need to use the IP
+`http://hostname/admin`. If this does not work you may need to use the IP
 address instead. As mentioned before there are numerous ways to determine the
 IP.
 
@@ -72,7 +72,7 @@ terminates after the end time is reached.
 The configured schedule will always be honored unless you add a Manual Override.
 Manual Overrides can be scheduled for specific dates into the future and may
 start or stop playlists. Volume control and play/stop functions can be accessed
-from the main page: `http://<hostname>/`
+from the main page: `http://hostname/`
 
 ## For Developers
 
