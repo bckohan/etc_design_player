@@ -51,9 +51,9 @@ asking your local tech support for help.
 ## Usage
 
 Most wifi networks will allow you to access the scheduler interface through
-`http://hostname/admin`. If this does not work you may need to use the IP
-address instead. As mentioned before there are numerous ways to determine the
-IP.
+`http://hostname/admin` (where hostname is the hostname you set during install).
+If this does not work you may need to use the IP  address instead. As mentioned
+before there are numerous ways to determine the IP.
 
 When accessing the admin the username/password will be the credentials you 
 setup when you ran install.sh.
