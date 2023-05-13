@@ -11,24 +11,33 @@ with the opening schedule of the museum.
 Install the Raspberry Pi operating system and connect it to your local network.
 Change the hostname of your Raspberry Pi to a memorable unique name - this name
 will be used access the scheduler later. The hostname can be changed by clicking
-the raspberry in the upper left menue and selecting "Preferences" -> 
-"Raspberry Pi Configuration" -> "System" -> "Hostname". Click save and reboot.
+the raspberry in the upper left menu and selecting "Preferences" -> 
+"Raspberry Pi Configuration" -> "System" -> "Hostname". While you have the 
+preferences open, also enable ssh access by selecting the "Interfaces"
+and toggling SSH on. Click save and reboot.
 
+Most wifi networks will allow you to access your Raspberry Pi over the network
+using the hostname you set. Only if your network does not you will have to use
+its IP address instead. There are numerous ways 
+[there are numerous ways to do determine the IP](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F) - 
+but be aware that power outages and other circumstances can change the IP 
+address of your Pi. For that reason it is advisable to give it a static IP 
+address on your network - which you can do by configuring the wifi router or 
+asking your local tech support for help.
 
- - Download the [latest package](https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip).
  - To install from the Raspberry Pi Desktop:
+    * Download the [latest package](https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip).
     * Unzip the downloaded package.
     * Double click on the install.sh file and select "execute in terminal".
- - To install from your computer's terminal: (replace IP and "pi" with your 
-   Raspberry Pi's IP address and username respectively). 
-   [You will also need to enable ssh on your pi](https://letmegooglethat.com/?q=enable+ssh+on+raspberry+pi)
-   and determine the Raspberry Pi's IP address - [there are numerous ways to do this](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F).
+ - To install from your computer's terminal: (replace <hostname> and <pi> with 
+   your Pi's hostname and account username respectively). 
+
+    * `ssh <pi>@<hostname>`
+    * `curl https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip --output ./etc_player.zip`
+    * `gunzip ./etc_player.zip`
+    * `cd ./etc_player`
+    * `./install.sh`
    
-    * `scp ~/Downloads/etc_player.zip pi@192.168.1.106:./`
-    * `ssh pi@192.168.1.106`
-    * `pi@raspberrypi:~ $> gunzip ./etc_player.zip`
-    * `pi@raspberrypi:~ $> cd ./etc_player`
-    * `pi@raspberrypi:~ $> ./install.sh`
  - After a few minutes the install script will prompt you to enter a username
    and password. This will be the account you use to login to the web interface
    to configure the playback. Once the install script disappears the install
@@ -43,10 +52,7 @@ the raspberry in the upper left menue and selecting "Preferences" ->
 Most wifi networks will allow you to access the scheduler interface through
 `http://<hostname>/admin`. If this does not work you may need to use the IP
 address instead. As mentioned before there are numerous ways to determine the
-IP - but be aware that power outages and other circumstances can change the IP 
-address of your Pi. For that reason it is advisable to give it a static IP 
-address on your network - which you can do by configuring the wifi router or 
-asking your local tech support for help.
+IP 
 
 When accessing the admin the username/password will be the credentials you 
 setup when you ran install.sh.
