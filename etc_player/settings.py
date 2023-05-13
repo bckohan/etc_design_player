@@ -132,8 +132,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RESTART_COMMAND = 'sudo systemctl restart audio'
 
 # when running as root - this command would work
-# VOLUME_COMMAND = 'sudo amixer sset PCM -M {volume}%'
-VOLUME_COMMAND = 'amixer sset Master {volume}%'
+VOLUME_COMMAND = 'sudo amixer sset Headphone -M {volume}%'
+# VOLUME_COMMAND = 'amixer sset Master {volume}%'
 
 PLAY_COMMAND = 'aplay {wave_file}'
 
