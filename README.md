@@ -13,7 +13,7 @@ Determine the Raspberry Pi's IP address - [there are numerous ways to do this](h
 Replace 192.168.1.106 with the correct IP address for your raspberry pi below 
 when following this procedure:
 
- - Download the [latest package](https://raw.githubusercontent.com/bckohan/etc_design_player/blob/main/etc_player.zip).
+ - Download the [latest package](https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip).
  - Install the package (via Raspberry PI Desktop):
     * Unzip the downloaded package.
     * Double click on the install.sh file and select "execute in terminal".
