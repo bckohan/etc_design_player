@@ -9,43 +9,62 @@ with the opening schedule of the museum.
 ## Installation
 
 Install the Raspberry Pi operating system and connect it to your local network.
-Determine the Raspberry Pi's IP address - [there are numerous ways to do this](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F).
-Replace 192.168.1.106 with the correct IP address for your raspberry pi below 
-when following this procedure:
+Change the hostname of your Raspberry Pi to a memorable unique name - this name
+will be used access the scheduler later. The hostname can be changed by clicking
+the raspberry in the upper left menue and selecting "Preferences" -> 
+"Raspberry Pi Configuration" -> "System" -> "Hostname". Click save and reboot.
+
 
  - Download the [latest package](https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip).
- - Install the package (via Raspberry PI Desktop):
+ - To install from the Raspberry Pi Desktop:
     * Unzip the downloaded package.
     * Double click on the install.sh file and select "execute in terminal".
- - Install the package (via terminal, replace IP and "pi" with your raspberry 
-   pi's IP address and username respectively). 
+ - To install from your computer's terminal: (replace IP and "pi" with your 
+   Raspberry Pi's IP address and username respectively). 
    [You will also need to enable ssh on your pi](https://letmegooglethat.com/?q=enable+ssh+on+raspberry+pi)
+   and determine the Raspberry Pi's IP address - [there are numerous ways to do this](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F).
    
     * `scp ~/Downloads/etc_player.zip pi@192.168.1.106:./`
     * `ssh pi@192.168.1.106`
     * `pi@raspberrypi:~ $> gunzip ./etc_player.zip`
     * `pi@raspberrypi:~ $> cd ./etc_player`
     * `pi@raspberrypi:~ $> ./install.sh`
- - Follow all prompts.
- - Configure your playback: http://192.168.1.106/admin
+ - After a few minutes the install script will prompt you to enter a username
+   and password. This will be the account you use to login to the web interface
+   to configure the playback. Once the install script disappears the install
+   is complete.
+ - To configure your playback from a computer on the same wifi network you can
+   access from: http://<hostname>/admin where hostname is the hostname you set
+   earlier or if on your Raspberry Pi's desktop you may also use
+   http://localhost/admin
 
 ## Usage
 
-You will need to know the IP address of your Raspberry Pi to configure it. This
-will most likely be a number that starts with 192.168.1. As mentioned before
-there are numerous ways to determine this - but be aware that power outages and
-other circumstances can change the IP address of your Pi. So its most advisable
-to give it a static IP address on your network - which you can do by
-configuring your router or asking your local tech support for help.
+Most wifi networks will allow you to access the scheduler interface through
+`http://<hostname>/admin`. If this does not work you may need to use the IP
+address instead. As mentioned before there are numerous ways to determine the
+IP - but be aware that power outages and other circumstances can change the IP 
+address of your Pi. For that reason it is advisable to give it a static IP 
+address on your network - which you can do by configuring the wifi router or 
+asking your local tech support for help.
 
-Once you have the IP address of your Pi, you can configure it by visiting the
-`http://<ip address>/admin` and you can start/stop the audio playback by
-visiting `http://<ip address>`. When accessing the admin the username/password
-will be the credentials you setup when you ran install.sh.
+When accessing the admin the username/password will be the credentials you 
+setup when you ran install.sh.
+
+Upload a wave file by adding a wave. There is no progress indicator on the wave
+file upload interface - so be patient and wait for the page to refresh before 
+navigating.
+
+Scheduling is done per-day-of-the-week. Only one contiguous block of time per
+day can be scheduled. To schedule a playback, create a playlist from one or
+more wave files. The playlist will loop until the scheduled time ends, and the
+currently playing wave file will be allowed to finish before the audio
+terminates after the end time is reached.
 
 The configured schedule will always be honored unless you add a Manual Override.
 Manual Overrides can be scheduled for specific dates into the future and may
-start or stop playlists.
+start or stop playlists. Volume control and play/stop functions can be accessed
+from the main page: `http://<hostname>/`
 
 ## For Developers
 
