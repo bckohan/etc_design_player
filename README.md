@@ -50,8 +50,8 @@ Run the tests:
 `poetry run ./etc_player/player.py test`
 
 Run the development server:
-`poetry run ./etc_player/player.py migrate`
-`poetry run ./etc_player/player.py runserver`
+   * `poetry run ./etc_player/player.py migrate`
+   * `poetry run ./etc_player/player.py runserver`
 
 The operational environment is configured using scripts located in 
 etc_player/ops. ``install.sh`` can be referenced to see how they are installed 
