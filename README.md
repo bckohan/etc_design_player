@@ -44,7 +44,7 @@ asking your local tech support for help.
    to configure the playback. Once the install script disappears the install
    is complete.
  - To configure your playback from a computer on the same wifi network you can
-   access from: http://hostname/admin where hostname is the hostname you set
+   access from: `http://hostname/admin` where hostname is the hostname you set
    earlier or if on your Raspberry Pi's desktop you may also use
    http://localhost/admin
 
