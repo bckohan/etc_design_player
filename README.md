@@ -18,8 +18,7 @@ and toggling SSH on. Click save and reboot.
 
 Most wifi networks will allow you to access your Raspberry Pi over the network
 using the hostname you set. Only if your network does not will you have to use
-its IP address instead. There are numerous ways 
-[there are numerous ways to do determine the IP](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F) - 
+its IP address instead. [There are numerous ways to do determine the IP](https://letmegooglethat.com/?q=How+do+I+determine+my+Raspberry+PI%27s+IP+address%3F) - 
 but be aware that power outages and other circumstances can change the IP 
 address of your Pi. For that reason it is advisable to give it a static IP 
 address on your network - which you can do by configuring the wifi router or 
