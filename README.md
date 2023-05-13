@@ -1,6 +1,6 @@
 # etc_design_player
 
-Use [Raspberry Pi](https://www.raspberrypi.com/) to play audio wave files on a 
+Use a [Raspberry Pi](https://www.raspberrypi.com/) to play audio wave files on a 
 configurable schedule or on demand via a web interface. This software was 
 originally developed to time the audio playback of museum exhibit audio tracks
 with the opening schedule of the museum.
