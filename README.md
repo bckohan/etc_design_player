@@ -39,8 +39,8 @@ to give it a static IP address on your network - which you can do by
 configuring your router or asking your local tech support for help.
 
 Once you have the IP address of your Pi, you can configure it by visiting the
-http://<ip address>/admin and you can start/stop the audio playback by visiting
-http://<ip address>
+`http://<ip address>/admin` and you can start/stop the audio playback by
+visiting `http://<ip address>`
 
 The configured schedule will always be honored unless you add a Manual Override.
 Manual Overrides can be scheduled for specific dates into the future and may
