@@ -1,6 +1,6 @@
 #!/bin/bash
 user=`whoami`
-sudo apt install nginx emacs python3-pyaudio alsa-tools alsa-utils
+sudo apt install -y nginx emacs python3-pyaudio alsa-tools alsa-utils
 sudo sed -i "s/^user .*$/user $user;/g" /etc/nginx/nginx.conf
 sudo mkdir /opt/player
 sudo chown -R $user:$user /opt/player
