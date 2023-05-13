@@ -1,3 +1,4 @@
+#!/bin/bash
 user=`whoami`
 sudo apt install nginx emacs python3-pyaudio alsa-tools alsa-utils
 sudo sed -i "s/^user .*$/user $user;/g" /etc/nginx/nginx.conf
