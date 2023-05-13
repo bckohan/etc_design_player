@@ -31,7 +31,20 @@ when following this procedure:
 
 ## Usage
 
+You will need to know the IP address of your Raspberry Pi to configure it. This
+will most likely be a number that starts with 192.168.1. As mentioned before
+there are numerous ways to determine this - but be aware that power outages and
+other circumstances can change the IP address of your Pi. So its most advisable
+to give it a static IP address on your network - which you can do by
+configuring your router or asking your local tech support for help.
 
+Once you have the IP address of your Pi, you can configure it by visiting the
+http://<ip address>/admin and you can start/stop the audio playback by visiting
+http://<ip address>
+
+The configured schedule will always be honored unless you add a Manual Override.
+Manual Overrides can be scheduled for specific dates into the future and may
+start or stop playlists.
 
 ## For Developers
 
