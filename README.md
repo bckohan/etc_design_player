@@ -1,9 +1,9 @@
 # etc_design_player
 
-Use [Raspberry Pi](https://www.raspberrypi.com/) to play audio wave files on a configurable schedule or on
-demand via a web interface. This software was originally developed to time
-the audio playback of museum exhibit audio tracks with the opening schedule
-of the museum.
+Use [Raspberry Pi](https://www.raspberrypi.com/) to play audio wave files on a 
+configurable schedule or on demand via a web interface. This software was 
+originally developed to time the audio playback of museum exhibit audio tracks
+with the opening schedule of the museum.
 
 
 ## Installation
@@ -17,7 +17,9 @@ when following this procedure:
  - Install the package (via Raspberry PI Desktop):
     * Unzip the downloaded package.
     * Double click on the install.sh file and select "execute in terminal".
- - Install the package (via terminal, replace IP and "pi" with your raspberry pi's IP address and username respectively). [You will also need to enable ssh on your pi](https://letmegooglethat.com/?q=enable+ssh+on+raspberry+pi)
+ - Install the package (via terminal, replace IP and "pi" with your raspberry 
+   pi's IP address and username respectively). 
+   [You will also need to enable ssh on your pi](https://letmegooglethat.com/?q=enable+ssh+on+raspberry+pi)
    
     * `scp ~/Downloads/etc_player.zip pi@192.168.1.106:./`
     * `ssh pi@192.168.1.106`
@@ -33,11 +35,14 @@ when following this procedure:
 
 ## For Developers
 
-This software uses the [Django](https://www.djangoproject.com/) webserver to provide the user interface.
+This software uses the [Django](https://www.djangoproject.com/) webserver to 
+provide the user interface.
 
-The [Poetry](https://python-poetry.org/) build tool is used to manage dependencies and build the project:
+The [Poetry](https://python-poetry.org/) build tool is used to manage 
+dependencies and build the project:
 
-You may also want to install [pyaudio](https://pypi.org/project/PyAudio/) for audio support on OSX.
+You may also want to install [pyaudio](https://pypi.org/project/PyAudio/) for 
+audio support on OSX.
 
 `poetry install -E all`
 
@@ -48,9 +53,9 @@ Run the development server:
 `poetry run ./etc_player/player.py migrate`
 `poetry run ./etc_player/player.py runserver`
 
-The operational environment is configured using scripts located in etc_player/ops.
-install.sh can be referenced to see how they are installed onto the system. The architecure
-serves the Django web interface using gunicorn proxied through nginx. The audio player script
-is managed as a simple always-on systemd service which makes the audo playback robost to
-power interruptions and other system failures.
-
+The operational environment is configured using scripts located in 
+etc_player/ops. ``install.sh`` can be referenced to see how they are installed 
+onto the system. The architecture serves the Django web interface using 
+gunicorn proxied through nginx. The audio player script is managed as a simple 
+always-on systemd service which makes the audio playback robust to power 
+interruptions and other system failures.
