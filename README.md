@@ -9,7 +9,7 @@ with the opening schedule of the museum.
 ## Installation
 
 Install the Raspberry Pi operating system and connect it to your local network.
-Change the hostname of your Raspberry Pi to a memorable unique name - this name
+*Change the hostname of your Raspberry Pi to a memorable unique name* - this name
 will be used access the scheduler later. The hostname can be changed by clicking
 the raspberry in the upper left menu and selecting "Preferences" -> 
 "Raspberry Pi Configuration" -> "System" -> "Hostname". While you have the 
