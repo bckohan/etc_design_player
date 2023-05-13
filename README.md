@@ -29,11 +29,11 @@ asking your local tech support for help.
     * Download the [latest package](https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip).
     * Unzip the downloaded package.
     * Double click on the install.sh file and select "execute in terminal".
- - To install from your computer's terminal: (replace <hostname> and <pi> with 
+ - To install from your computer's terminal: (replace "hostname" and "pi" with 
    your Pi's hostname and account username respectively). 
 
     ```bash
-      ssh <pi>@<hostname>
+      ssh pi@hostname
       wget --no-check-certificate --content-disposition https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip
       gunzip ./etc_player.zip
       cd ./etc_player
