@@ -301,7 +301,7 @@ class PlayerTests(TransactionTestCase):
         self.volume_set = False
 
         ManualOverride.objects.all().delete()
-        self.assertFalse(self.restarted)
+        self.assertTrue(self.restarted)
         self.assertFalse(self.volume_set)
 
     def test_basic_schedule_use(self):
@@ -319,9 +319,12 @@ class PlayerTests(TransactionTestCase):
             playlist=self.playlist1
         )
 
-        self.assertFalse(self.restarted)
+        self.assertTrue(self.restarted)
         self.assertFalse(self.volume_set)
         self.assertIsNone(self.settings.current_playlist)
+
+        self.restarted = False
+        self.volume_set = False
 
         sleep(5)
 
