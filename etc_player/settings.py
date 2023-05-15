@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 import sys
 import tzlocal
+import re
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(
@@ -132,7 +133,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 RESTART_COMMAND = 'sudo systemctl restart audio'
 
 # when running as root - this command would work
-VOLUME_COMMAND = 'sudo amixer sset Headphone -M {volume}%'
+
+
+def get_volume_control(cmd='sudo amixer'):
+    return getattr(
+        re.match(
+            r"Simple mixer control '(\w*)'",
+            os.popen(cmd).read().split('\n')[0]
+        ),
+        'group',
+        lambda x: 'Headphone'
+    )(1)
+
+
+VOLUME_COMMAND = (
+    'sudo amixer sset ' + get_volume_control('sudo amixer') + ' -M {volume}%'
+)
 # VOLUME_COMMAND = 'amixer sset Master {volume}%'
 
 PLAY_COMMAND = 'aplay {wave_file}'
