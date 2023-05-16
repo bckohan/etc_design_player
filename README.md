@@ -34,7 +34,7 @@ asking your local tech support for help.
     ```bash
       ssh pi@hostname
       wget --no-check-certificate --content-disposition https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip
-      gunzip ./etc_player.zip
+      unzip ./etc_player.zip
       cd ./etc_player
       ./install.sh
     ```
