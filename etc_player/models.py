@@ -351,11 +351,6 @@ class PlaybackSettings(SingletonModel):
 
         :return: None if nothing should be playing, otherwise the playlist
         """
-        # remove ManualOverrides that are more than 24 hours old
-        ManualOverride.objects.filter(
-            timestamp__lt=datetime.now()-timedelta(days=1)
-        ).delete()
-
         override = ManualOverride.objects.first()
         scheduled = PlaybackTimeRange.objects.scheduled_playlist()
         if override is None:
