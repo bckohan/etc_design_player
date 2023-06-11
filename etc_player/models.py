@@ -352,6 +352,12 @@ class PlaybackSettings(SingletonModel):
         :return: None if nothing should be playing, otherwise the playlist
         """
         override = ManualOverride.objects.first()
+        if (
+            override and
+            (datetime.now() - override.timestamp) >= timedelta(days=1)
+        ):
+            override = None
+
         scheduled = PlaybackTimeRange.objects.scheduled_playlist()
         if override is None:
             return getattr(scheduled, 'playlist', None)

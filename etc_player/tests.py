@@ -530,6 +530,31 @@ class PlayerTests(TransactionTestCase):
         response = input('Did you hear beeps (y/n)?')
         self.assertTrue(response.lower() in ['y', 'yes', '1', 'true'])
 
+    def test_stop_last_week_same_day_bug(self):
+        """
+        Test found bug where if there is a manual STOP at the top of the stack
+        for the same day of the week as the current day, but in the past it
+        will block scheduled play.
+        """
+
+        today = datetime.now()
+        last_week = today - timedelta(days=7)
+
+        ManualOverride.objects.create(
+            operation=ManualOverride.Operation.STOP,
+            playlist=self.playlist1,
+            timestamp=last_week
+        )
+
+        PlaybackTimeRange.objects.create(
+            day_of_week=today,
+            start=today.time(),
+            end=(today + timedelta(seconds=5)).time(),
+            playlist=self.playlist1
+        )
+
+        self.assertEqual(self.settings.current_playlist, self.playlist1)
+
 
 class TestFileDeletion(TransactionTestCase):
 
