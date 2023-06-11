@@ -73,6 +73,9 @@ Manual Overrides can be scheduled for specific dates into the future and may
 start or stop playlists. Volume control and play/stop functions can be accessed
 from the main page: `http://hostname/`
 
+**_NOTE:_**  On some hosts (OSX) you may need to use `hostname.local` instead of 
+`hostname`.
+
 ## For Developers
 
 This software uses the [Django](https://www.djangoproject.com/) webserver to 
