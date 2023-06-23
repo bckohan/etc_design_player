@@ -297,12 +297,15 @@ class ManualOverride(models.Model):
     def save(self, *args, **kwargs):
         if not hasattr(self, 'playlist') or self.playlist is None:
             if self.operation is ManualOverride.Operation.PLAY:
-                self.playlist = PlaybackSettings.load().default_playlist
+                self.playlist = (
+                        PlaybackSettings.load().default_playlist or
+                        Playlist.objects.first()
+                )
             else:
                 self.playlist = getattr(
                     PlaybackTimeRange.objects.scheduled_playlist(),
                     'playlist',
-                    None
+                    Playlist.objects.first()
                 )
         super().save(*args, **kwargs)
 
@@ -311,7 +314,8 @@ class ManualOverride(models.Model):
         return self.playlist or PlaybackSettings.load().default_playlist
 
     def __str__(self):
-        return f'{self.operation.label} {self.effective_playlist.name} ' \
+        return f'{self.operation.label} ' \
+               f'{getattr(self.effective_playlist, "name", "")} ' \
                f'{self.timestamp}'
 
     class Meta:
@@ -351,7 +355,10 @@ class PlaybackSettings(SingletonModel):
 
         :return: None if nothing should be playing, otherwise the playlist
         """
-        override = ManualOverride.objects.first()
+
+        override = ManualOverride.objects.filter(
+            timestamp__lte=datetime.now()
+        ).first()
         if (
             override and
             (datetime.now() - override.timestamp) >= timedelta(days=1)

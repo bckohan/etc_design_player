@@ -13,6 +13,25 @@ from .models import (
 from django import forms
 
 
+class DateTimeLocalInput(forms.widgets.DateTimeInput):
+    input_type = 'datetime-local'
+
+
+class DateTimeLocalField(forms.DateTimeField):
+    # Set DATETIME_INPUT_FORMATS here because, if USE_L10N
+    # is True, the locale-dictated format will be applied
+    # instead of settings.DATETIME_INPUT_FORMATS.
+    # See also:
+    # https://developer.mozilla.org/en-US/docs/Web/HTML/Date_and_time_formats
+
+    input_formats = [
+        "%Y-%m-%dT%H:%M:%S",
+        "%Y-%m-%dT%H:%M:%S.%f",
+        "%Y-%m-%dT%H:%M"
+    ]
+    widget = DateTimeLocalInput(format="%Y-%m-%dT%H:%M")
+
+
 class TimeInput(forms.widgets.TimeInput):
     input_type = 'time'
 
@@ -91,8 +110,20 @@ class WaveAdmin(admin.ModelAdmin):
 
 class ManualOverrideAdmin(admin.ModelAdmin):
 
+    class ManualOverrideForm(forms.ModelForm):
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['timestamp'] = DateTimeLocalField()
+
+        class Meta:
+            model = ManualOverride
+            fields = '__all__'
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('playlist')
+
+    form = ManualOverrideForm
 
 
 admin.site.register(PlaybackTimeRange, PlaybackTimeRangeAdmin)

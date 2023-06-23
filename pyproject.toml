@@ -46,6 +46,7 @@ player = 'etc_player.player:main'
 
 [tool.poetry.group.dev.dependencies]
 ipython = "^8.13.2"
+ipdb = "^0.13.13"
 
 [build-system]
 requires = ["poetry-core"]

@@ -485,6 +485,37 @@ class PlayerTests(TransactionTestCase):
         self.assertFalse(self.volume_set)
         self.assertEqual(self.settings.current_playlist, self.playlist2)
 
+    def test_override_in_future_bug(self):
+
+        ManualOverride.objects.all().delete()
+        PlaybackTimeRange.objects.all().delete()
+        self.assertEqual(self.settings.current_playlist, None)
+
+        start = datetime.now() + timedelta(seconds=2)
+        end = datetime.now() + timedelta(seconds=5)
+
+        ManualOverride.objects.create(
+            operation=ManualOverride.Operation.PLAY,
+            timestamp=start,
+            playlist=self.playlist1
+        )
+        ManualOverride.objects.create(
+            operation=ManualOverride.Operation.STOP,
+            timestamp=end,
+            playlist=self.playlist1
+        )
+
+        self.assertEqual(ManualOverride.objects.count(), 2)
+        self.assertEqual(self.settings.current_playlist, None)
+        sleep(3)
+        self.assertTrue(start < datetime.now() < end)
+        playing = self.settings.current_playlist
+        self.assertEqual(ManualOverride.objects.count(), 2)
+        self.assertEqual(playing, self.playlist1)
+        sleep((end-datetime.now()).total_seconds() + 1)
+        self.assertEqual(self.settings.current_playlist, None)
+        self.assertEqual(ManualOverride.objects.count(), 2)
+
     def test_set_volume(self):
         self.volume_set = False
         self.volume_value = None
