@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
-from etc_player.models import PlaybackSettings, PlaybackTimeRange
+from etc_player.models import PlaybackSettings, PlaybackTimeRange, ManualOverride
 from datetime import datetime
 from django.conf import settings
+from django.db.models import Q
 import subprocess
 import wave
 import time
@@ -73,6 +74,11 @@ class Command(BaseCommand):
             playlist = self.settings.current_playlist
 
         nxt_time, next_sched = PlaybackTimeRange.objects.next_scheduled_playlist()
+        override = ManualOverride.objects.filter(
+            Q(timestamp__gte=datetime.now()) & Q(timestamp__lt=nxt_time)
+        ).order_by('timestamp').first()
+        if override:
+            nxt_time = override.timestamp
         if nxt_time is None or self.TERMINATE:
             self.style.WARNING('No scheduled playbacks.')
             return
@@ -84,9 +90,9 @@ class Command(BaseCommand):
             )
         )
         time.sleep(
-            wait_seconds
+            wait_seconds+1
             if self.MAX_SLEEP is None
-            else min(wait_seconds, self.MAX_SLEEP)
+            else min(wait_seconds+1, self.MAX_SLEEP)
         )
         self.run()
 
