@@ -6,9 +6,9 @@
 [![PyPI pyversions](https://img.shields.io/pypi/pyversions/etc-player.svg)](https://pypi.python.org/pypi/etc-player/)
 [![PyPI djversions](https://img.shields.io/pypi/djversions/etc-player.svg)](https://pypi.org/project/etc-player/)
 [![PyPI status](https://img.shields.io/pypi/status/etc-player.svg)](https://pypi.python.org/pypi/etc-player)
-[![Code Cov](https://codecov.io/gh/bckohan/etc-player/branch/main/graph/badge.svg?token=0IZOKN2DYL)](https://codecov.io/gh/bckohan/etc-player)
-[![Test Status](https://github.com/bckohan/etc-player/workflows/test/badge.svg)](https://github.com/bckohan/etc-player/actions/workflows/test.yml)
-[![Lint Status](https://github.com/bckohan/etc-player/workflows/lint/badge.svg)](https://github.com/bckohan/etc-player/actions/workflows/lint.yml)
+[![Code Cov](https://codecov.io/gh/bckohan/etc_design_player/branch/main/graph/badge.svg?token=0IZOKN2DYL)](https://codecov.io/gh/bckohan/etc_design_player)
+[![Test Status](https://github.com/bckohan/etc_design_player/workflows/test/badge.svg)](https://github.com/bckohan/etc_design_player/actions/workflows/test.yml)
+[![Lint Status](https://github.com/bckohan/etc_design_player/workflows/lint/badge.svg)](https://github.com/bckohan/etc_design_player/actions/workflows/lint.yml)
 
 
 Use a [Raspberry Pi](https://www.raspberrypi.com/) to play audio wave files on a configurable schedule or on demand via a web interface. This software was originally developed to time the audio playback of museum exhibit audio tracks with the opening schedule of the museum.
