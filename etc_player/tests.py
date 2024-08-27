@@ -5,6 +5,7 @@ from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
 from django.test import Client
 from django.db import transaction
+from unittest import skipIf
 from datetime import timedelta, datetime, time
 from time import sleep
 import io
@@ -105,7 +106,7 @@ class PlayerTests(TransactionTestCase):
     playlist1 = None
     playlist2 = None
 
-    settings = None
+    settings: PlaybackSettings
 
     user = None
 
@@ -505,7 +506,8 @@ class PlayerTests(TransactionTestCase):
 
         self.assertTrue(self.volume_set)
         self.assertEqual(self.volume_value, 50)
-
+    
+    @skipIf(os.getenv('GITHUB_ACTIONS') == 'true', 'Skipped on GitHub Actions')
     def test_play_audio(self):
         self.assertIsNone(self.settings.current_playlist)
         self.assertFalse(self.restarted)
