@@ -1,12 +1,13 @@
-import subprocess
-from django.conf import settings
-from datetime import timedelta, datetime
 import logging
+import subprocess
+from datetime import datetime, timedelta
+
+from django.conf import settings
 
 last_restart = None
 
 
-logger = logging.getLogger('etc_player')
+logger = logging.getLogger("etc_player")
 
 
 def restart_audio():
@@ -14,22 +15,17 @@ def restart_audio():
     # since call to this is wrapped in a transaction.on_commit so should only
     # happen once DB state is consistent with the end of the request
     global last_restart
-    if (
-        last_restart is None or
-        (datetime.now() - last_restart) > timedelta(seconds=1)
-    ):
+    if last_restart is None or (datetime.now() - last_restart) > timedelta(seconds=1):
         subprocess.run(settings.RESTART_COMMAND.split())
         last_restart = datetime.now()
 
 
 def set_volume(volume):
-    cmd = settings.VOLUME_COMMAND.format(
-        volume=max(0, min(100, int(volume)))
-    ).split()
+    cmd = settings.VOLUME_COMMAND.format(volume=max(0, min(100, int(volume)))).split()
     try:
         subprocess.run(cmd)
     except Exception:
-        logger.exception('Error setting volume')
+        logger.exception("Error setting volume")
 
 
 def sizeof_fmt(num, suffix="B"):
@@ -39,17 +35,17 @@ def sizeof_fmt(num, suffix="B"):
                 return f"{num:3.1f}{unit}{suffix}"
             num /= 1024.0
         return f"{num:.1f}Yi{suffix}"
-    return ''
+    return ""
 
 
 def duration_fmt(duration):
-    dstr = ''
+    dstr = ""
     if duration:
         tot_seconds = int(duration.total_seconds())
         minutes = tot_seconds // 60
         seconds = tot_seconds % 60
         if minutes > 0:
-            dstr += f'{minutes} minutes'
+            dstr += f"{minutes} minutes"
         if seconds > 0:
             dstr += f'{", " if dstr else ""}{seconds} seconds'
     return dstr

@@ -1,11 +1,5 @@
 from django.test import TransactionTestCase
-from .models import (
-    ManualOverride,
-    PlaybackSettings,
-    PlaybackTimeRange,
-    Playlist,
-    Wave
-)
+from .models import ManualOverride, PlaybackSettings, PlaybackTimeRange, Playlist, Wave
 from django.core.management import call_command
 from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
@@ -41,11 +35,7 @@ class BeepGenerator:
 
         return
 
-    def append_sinewave(
-            self,
-            freq=440.0,
-            duration_milliseconds=500,
-            volume=1.0):
+    def append_sinewave(self, freq=440.0, duration_milliseconds=500, volume=1.0):
         """
         The sine wave generated here is the standard beep.  If you want
         something more aggressive you could try a square or saw tooth waveform.
@@ -57,7 +47,8 @@ class BeepGenerator:
 
         for x in range(int(num_samples)):
             self.audio.append(
-                volume * math.sin(2 * math.pi * freq * (x / self.sample_rate)))
+                volume * math.sin(2 * math.pi * freq * (x / self.sample_rate))
+            )
 
         return
 
@@ -76,10 +67,9 @@ class BeepGenerator:
         nframes = len(self.audio)
         comptype = "NONE"
         compname = "not compressed"
-        wav_file.setparams((
-            nchannels, sampwidth, self.sample_rate, nframes, comptype,
-            compname
-        ))
+        wav_file.setparams(
+            (nchannels, sampwidth, self.sample_rate, nframes, comptype, compname)
+        )
 
         # WAV files here are using short, 16 bit, signed integers for the
         # sample size.  So we multiply the floating point data we have by
@@ -88,7 +78,7 @@ class BeepGenerator:
         # directly in a WAV file but not obvious how to do that using the wave
         # module in python.
         for sample in self.audio:
-            wav_file.writeframes(struct.pack('h', int(sample * 32767.0)))
+            wav_file.writeframes(struct.pack("h", int(sample * 32767.0)))
 
         wav_file.close()
 
@@ -124,7 +114,6 @@ class PlayerTests(TransactionTestCase):
     volume_value = None
 
     def setUp(self):
-
         from etc_player import utils
         from etc_player.apps import ETCPlayerConfig
 
@@ -141,9 +130,7 @@ class PlayerTests(TransactionTestCase):
         ETCPlayerConfig.register_receivers()
 
         self.user = get_user_model().objects.create_superuser(
-            username='test',
-            email='noreply@localhost',
-            password='test'
+            username="test", email="noreply@localhost", password="test"
         )
 
         bg1 = BeepGenerator()
@@ -158,8 +145,8 @@ class PlayerTests(TransactionTestCase):
         bg2.append_sinewave(volume=0.6, duration_milliseconds=800)
         bg2.append_silence()
 
-        wave_file1 = ContentFile(bg1.get_bytes(), name='wave_file1.wav')
-        wave_file2 = ContentFile(bg2.get_bytes(), name='wave_file2.wav')
+        wave_file1 = ContentFile(bg1.get_bytes(), name="wave_file1.wav")
+        wave_file2 = ContentFile(bg2.get_bytes(), name="wave_file2.wav")
 
         self.wave1 = Wave.objects.create(file=wave_file1)
         self.wave2 = Wave.objects.create(file=wave_file2)
@@ -167,21 +154,17 @@ class PlayerTests(TransactionTestCase):
         self.wave_path1 = self.wave1.file.path
         self.wave_path2 = self.wave2.file.path
 
-        self.playlist1 = Playlist.objects.create(
-            name='Playlist 1'
-        )
+        self.playlist1 = Playlist.objects.create(name="Playlist 1")
         self.playlist1.waves.add(self.wave1)
         self.playlist1.waves.add(self.wave2)
-        self.playlist2 = Playlist.objects.create(
-            name='Playlist 2'
-        )
+        self.playlist2 = Playlist.objects.create(name="Playlist 2")
         self.playlist2.waves.add(self.wave2)
 
         self.settings = PlaybackSettings.load()
         self.settings.default_playlist = self.playlist2
         self.settings.save()
 
-        Client().login(username='test', password='test')
+        Client().login(username="test", password="test")
 
         self.restarted = False
         self.volume_set = False
@@ -196,31 +179,25 @@ class PlayerTests(TransactionTestCase):
         Wave.objects.all().delete()
 
     def test_duration(self):
-        self.assertEqual(self.playlist1.duration_str, '4 seconds')
-        self.assertEqual(self.playlist2.duration_str, '3 seconds')
+        self.assertEqual(self.playlist1.duration_str, "4 seconds")
+        self.assertEqual(self.playlist2.duration_str, "3 seconds")
 
     def check_time_range_consistency(self):
-
         self.assertRaises(
             Exception,
             PlaybackTimeRange.objects.create(
-                day_of_week=0,
-                start_time=time(hour=5),
-                end_time=time(hour=4)
-            )
+                day_of_week=0, start_time=time(hour=5), end_time=time(hour=4)
+            ),
         )
 
         self.assertRaises(
             Exception,
             PlaybackTimeRange.objects.create(
-                day_of_week=0,
-                start_time=time(hour=5),
-                end_time=time(hour=5)
-            )
+                day_of_week=0, start_time=time(hour=5), end_time=time(hour=5)
+            ),
         )
 
     def test_next_and_last_scheduled(self):
-
         current_time = datetime.now() + timedelta(seconds=10)
         dow = PlaybackTimeRange.DayOfWeek(current_time)
         days = [current_time + timedelta(days=days) for days in range(0, 7)]
@@ -231,7 +208,7 @@ class PlayerTests(TransactionTestCase):
                 day_of_week=dt,
                 playlist=playlist,
                 start=dt.time(),
-                end=(dt + timedelta(seconds=1)).time()
+                end=(dt + timedelta(seconds=1)).time(),
             )
             next_dt, next_sched = PlaybackTimeRange.objects.next_scheduled_playlist()
             last_dt, last_sched = PlaybackTimeRange.objects.last_scheduled_playlist()
@@ -247,24 +224,25 @@ class PlayerTests(TransactionTestCase):
                 day_of_week=dt,
                 playlist=playlist,
                 start=dt.time(),
-                end=(dt + timedelta(seconds=1)).time()
+                end=(dt + timedelta(seconds=1)).time(),
             )
             next_dt, next_sched = PlaybackTimeRange.objects.next_scheduled_playlist()
             last_dt, last_sched = PlaybackTimeRange.objects.last_scheduled_playlist()
             self.assertEqual(next_dt, current_time)
             self.assertEqual(next_sched.playlist, self.playlist1)
-            self.assertEqual(last_dt, current_time - timedelta(days=7-idx))
+            self.assertEqual(last_dt, current_time - timedelta(days=7 - idx))
             self.assertEqual(last_sched.playlist, playlist)
 
         PlaybackTimeRange.objects.all().delete()
 
     def test_basic_manual_use(self):
-
         # Pressing play with no schedule should play the default playlist
         self.assertIsNone(self.settings.current_playlist)
         self.assertFalse(self.restarted)
         self.assertFalse(self.volume_set)
-        override = ManualOverride.objects.create(operation=ManualOverride.Operation.PLAY)
+        override = ManualOverride.objects.create(
+            operation=ManualOverride.Operation.PLAY
+        )
         self.assertEqual(self.settings.current_playlist, self.playlist2)
         self.assertTrue(self.restarted)
         self.assertFalse(self.volume_set)
@@ -281,8 +259,7 @@ class PlayerTests(TransactionTestCase):
 
         # playlist field on override is honored
         override = ManualOverride.objects.create(
-            operation=ManualOverride.Operation.PLAY,
-            playlist=self.playlist1
+            operation=ManualOverride.Operation.PLAY, playlist=self.playlist1
         )
         self.assertEqual(self.settings.current_playlist, self.playlist1)
         self.assertTrue(self.restarted)
@@ -291,9 +268,7 @@ class PlayerTests(TransactionTestCase):
         self.volume_set = False
 
         # hitting the stop button works
-        ManualOverride.objects.create(
-            operation=ManualOverride.Operation.STOP
-        )
+        ManualOverride.objects.create(operation=ManualOverride.Operation.STOP)
         self.assertEqual(self.settings.current_playlist, None)
         self.assertTrue(self.restarted)
         self.assertFalse(self.volume_set)
@@ -305,7 +280,6 @@ class PlayerTests(TransactionTestCase):
         self.assertFalse(self.volume_set)
 
     def test_basic_schedule_use(self):
-
         # schedule into the near future - watch as playback should start
         current_time = datetime.now()
 
@@ -316,7 +290,7 @@ class PlayerTests(TransactionTestCase):
             day_of_week=PlaybackTimeRange.DayOfWeek(start),
             start=start.time(),
             end=end.time(),
-            playlist=self.playlist1
+            playlist=self.playlist1,
         )
 
         self.assertTrue(self.restarted)
@@ -368,16 +342,13 @@ class PlayerTests(TransactionTestCase):
         self.volume_set = False
 
     def test_manual_override(self):
-
         current_time = datetime.now()
 
         start = current_time
         end = current_time + timedelta(seconds=5)
 
         time_range = PlaybackTimeRange.objects.create(
-            day_of_week=start,
-            start=start.time(),
-            end=end.time()
+            day_of_week=start, start=start.time(), end=end.time()
         )
 
         self.assertTrue(self.restarted)
@@ -390,8 +361,7 @@ class PlayerTests(TransactionTestCase):
         self.volume_set = False
 
         play = ManualOverride.objects.create(
-            operation=ManualOverride.Operation.PLAY,
-            playlist=self.playlist1
+            operation=ManualOverride.Operation.PLAY, playlist=self.playlist1
         )
         self.assertEqual(self.settings.current_playlist, self.playlist1)
         self.assertTrue(self.restarted)
@@ -410,8 +380,7 @@ class PlayerTests(TransactionTestCase):
         self.volume_set = False
 
         stop = ManualOverride.objects.create(
-            operation=ManualOverride.Operation.STOP,
-            playlist=self.playlist1
+            operation=ManualOverride.Operation.STOP, playlist=self.playlist1
         )
 
         self.assertTrue(self.restarted)
@@ -431,9 +400,7 @@ class PlayerTests(TransactionTestCase):
         self.volume_set = False
 
         # should still play after time expires because of manual override
-        play = ManualOverride.objects.create(
-            operation=ManualOverride.Operation.PLAY
-        )
+        play = ManualOverride.objects.create(operation=ManualOverride.Operation.PLAY)
         self.assertFalse(self.restarted)
         self.assertFalse(self.volume_set)
         self.assertEqual(self.settings.current_playlist, self.playlist2)
@@ -460,7 +427,7 @@ class PlayerTests(TransactionTestCase):
             day_of_week=PlaybackTimeRange.DayOfWeek(start),
             start=start.time(),
             end=end.time(),
-            playlist=self.playlist1
+            playlist=self.playlist1,
         )
 
         self.assertEqual(self.settings.current_playlist, self.playlist2)
@@ -486,7 +453,6 @@ class PlayerTests(TransactionTestCase):
         self.assertEqual(self.settings.current_playlist, self.playlist2)
 
     def test_override_in_future_bug(self):
-
         ManualOverride.objects.all().delete()
         PlaybackTimeRange.objects.all().delete()
         self.assertEqual(self.settings.current_playlist, None)
@@ -497,12 +463,12 @@ class PlayerTests(TransactionTestCase):
         ManualOverride.objects.create(
             operation=ManualOverride.Operation.PLAY,
             timestamp=start,
-            playlist=self.playlist1
+            playlist=self.playlist1,
         )
         ManualOverride.objects.create(
             operation=ManualOverride.Operation.STOP,
             timestamp=end,
-            playlist=self.playlist1
+            playlist=self.playlist1,
         )
 
         self.assertEqual(ManualOverride.objects.count(), 2)
@@ -512,7 +478,7 @@ class PlayerTests(TransactionTestCase):
         playing = self.settings.current_playlist
         self.assertEqual(ManualOverride.objects.count(), 2)
         self.assertEqual(playing, self.playlist1)
-        sleep((end-datetime.now()).total_seconds() + 1)
+        sleep((end - datetime.now()).total_seconds() + 1)
         self.assertEqual(self.settings.current_playlist, None)
         self.assertEqual(ManualOverride.objects.count(), 2)
 
@@ -541,7 +507,6 @@ class PlayerTests(TransactionTestCase):
         self.assertEqual(self.volume_value, 50)
 
     def test_play_audio(self):
-
         self.assertIsNone(self.settings.current_playlist)
         self.assertFalse(self.restarted)
         self.assertFalse(self.volume_set)
@@ -556,10 +521,10 @@ class PlayerTests(TransactionTestCase):
         self.restarted = False
         self.volume_set = False
 
-        call_command('play_audio', terminate=True)
+        call_command("play_audio", terminate=True)
 
-        response = input('Did you hear beeps (y/n)?')
-        self.assertTrue(response.lower() in ['y', 'yes', '1', 'true'])
+        response = input("Did you hear beeps (y/n)?")
+        self.assertTrue(response.lower() in ["y", "yes", "1", "true"])
 
     def test_stop_last_week_same_day_bug(self):
         """
@@ -574,21 +539,20 @@ class PlayerTests(TransactionTestCase):
         ManualOverride.objects.create(
             operation=ManualOverride.Operation.STOP,
             playlist=self.playlist1,
-            timestamp=last_week
+            timestamp=last_week,
         )
 
         PlaybackTimeRange.objects.create(
             day_of_week=today,
             start=today.time(),
             end=(today + timedelta(seconds=5)).time(),
-            playlist=self.playlist1
+            playlist=self.playlist1,
         )
 
         self.assertEqual(self.settings.current_playlist, self.playlist1)
 
 
 class TestFileDeletion(TransactionTestCase):
-
     wave_file = None
     wave_file_path = None
 
@@ -600,9 +564,7 @@ class TestFileDeletion(TransactionTestCase):
         bg3.append_silence()
 
         self.wave_file = Wave.objects.create(
-            file=ContentFile(
-                bg3.get_bytes(), name='wave_file3.wav'
-            )
+            file=ContentFile(bg3.get_bytes(), name="wave_file3.wav")
         )
         self.wave_file_path = self.wave_file.file.path
 
