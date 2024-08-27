@@ -48,7 +48,7 @@ tzlocal = "^4.3"
 optional = true
 
 [tool.poetry.group.pyaudio.dependencies]
-pyaudio = "0.2.11"
+pyaudio = "0.2.14"
 
 [tool.poetry.scripts]
 player = 'etc_player.player:main'
