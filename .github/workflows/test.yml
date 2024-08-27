@@ -34,6 +34,7 @@ jobs:
         virtualenvs-in-project: true
     - name: Install Release Dependencies
       run: |
+        sudo apt install -y python3-pyaudio alsa-tools alsa-utils
         poetry config virtualenvs.in-project true
         poetry run pip install --upgrade pip
         poetry install
