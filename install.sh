@@ -6,7 +6,7 @@ sudo mkdir /opt/player
 sudo chown -R $user:$user /opt/player
 python -m venv /opt/player
 source /opt/player/bin/activate
-pip3 install ./etc_player-*.whl
+pip3 install etc-player
 echo "source /opt/player/bin/activate" >> ~/.bashrc
 echo "export PLAYER_DIR=/var/www/player" >> ~/.bashrc
 sudo mkdir /var/www/player

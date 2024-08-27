@@ -25,18 +25,14 @@ address on your network - which you can do by configuring the wifi router or
 asking your local tech support for help.
 
  - To install from the Raspberry Pi Desktop:
-    * Download the [latest package](https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip).
-    * Unzip the downloaded package.
+    * Download the [installer](https://github.com/bckohan/etc_design_player/raw/main/install.sh).
     * Double click on the install.sh file and select "execute in terminal".
  - To install from your computer's terminal: (replace "hostname" and "pi" with 
    your Pi's hostname and account username respectively). 
 
     ```bash
       ssh pi@hostname
-      wget --no-check-certificate --content-disposition https://github.com/bckohan/etc_design_player/raw/main/etc_player.zip
-      unzip ./etc_player.zip
-      cd ./etc_player
-      ./install.sh
+      curl -sSL https://github.com/bckohan/etc_design_player/raw/main/install.sh | bash
     ```
 
  - After a few minutes the install script will prompt you to enter a username
