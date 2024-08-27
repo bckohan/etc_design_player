@@ -43,6 +43,8 @@ django-enum = "^1.3.3"
 enum-properties = "^1.8.0"
 gunicorn = "^23.0.0"
 tzlocal = "^5.2"
+django-typer = "^2.2.2"
+rich = "^13.8.0"
 
 [tool.poetry.group.pyaudio]
 optional = true

@@ -1,16 +1,18 @@
 import subprocess
 import time
+import typing as t
 import wave
 from datetime import datetime
 
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from django.db.models import Q
+from django_typer.management import TyperCommand
+from typer import Option
 
 from etc_player.models import ManualOverride, PlaybackSettings, PlaybackTimeRange
 
 
-class Command(BaseCommand):
+class Command(TyperCommand):
     help = "Play the audio given the playback settings."
 
     CHUNK = 8192
@@ -20,48 +22,41 @@ class Command(BaseCommand):
 
     settings = None
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--pyaudio",
-            dest="pyaudio",
-            default=self.USE_PYAUDIO,
-            action="store_true",
-            help="Use pyaudio to play the audio instead of the configured "
-            "play command.",
-        )
-
-        parser.add_argument(
-            "--chunk-size",
-            dest="chunk_size",
-            default=self.CHUNK,
-            type=int,
-            help="The number of bytes to buffer at a time from the wave file."
-            "(This only applies when using pyaudio)."
-            "Default: {self.CHUNK}",
-        )
-
-        parser.add_argument(
-            "--max-sleep",
-            dest="max_sleep",
-            default=self.MAX_SLEEP,
-            type=int,
-            help="Limit sleeps to this many seconds. Default: no limit. This"
-            "may be useful if clock drift is an issue.",
-        )
-
-        parser.add_argument(
-            "--terminate",
-            dest="terminate",
-            default=self.TERMINATE,
-            action="store_true",
-            help="Terminate if nothing scheduled to play immediately.",
-        )
-
-    def handle(self, *args, **options):
-        self.CHUNK = options.get("chunk_size", self.CHUNK)
-        self.USE_PYAUDIO = options.get("pyaudio", self.USE_PYAUDIO)
-        self.MAX_SLEEP = options.get("max_sleep", self.MAX_SLEEP)
-        self.TERMINATE = options.get("terminate", self.TERMINATE)
+    def handle(
+        self,
+        pyaudio: t.Annotated[
+            bool,
+            Option(
+                "--pyaudio",
+                help="Use pyaudio to play the audio instead of the configured play command.",
+            ),
+        ] = False,
+        chunk_size: t.Annotated[
+            int,
+            Option(
+                help="The number of bytes to buffer at a time from the wave file. "
+                "(This only applies when using pyaudio)."
+            ),
+        ] = CHUNK,
+        max_sleep: t.Annotated[
+            t.Optional[int],
+            Option(
+                help="Limit sleeps to this many seconds. Default: no limit. This "
+                "may be useful if clock drift is an issue."
+            ),
+        ] = MAX_SLEEP,
+        terminate: t.Annotated[
+            bool,
+            Option(
+                "--terminate",
+                help="Terminate if nothing scheduled to play immediately.",
+            ),
+        ] = False,
+    ):
+        self.CHUNK = chunk_size
+        self.USE_PYAUDIO = pyaudio
+        self.MAX_SLEEP = max_sleep
+        self.TERMINATE = terminate
         self.run()
 
     def run(self):
