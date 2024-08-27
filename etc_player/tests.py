@@ -506,8 +506,8 @@ class PlayerTests(TransactionTestCase):
 
         self.assertTrue(self.volume_set)
         self.assertEqual(self.volume_value, 50)
-    
-    @skipIf(os.getenv('GITHUB_ACTIONS') == 'true', 'Skipped on GitHub Actions')
+
+    @skipIf(os.getenv("GITHUB_ACTIONS") == "true", "Skipped on GitHub Actions")
     def test_play_audio(self):
         self.assertIsNone(self.settings.current_playlist)
         self.assertFalse(self.restarted)
