@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "etc-player"
-version = "1.0.1"
+version = "1.1.0"
 description = "ETC Design Audio Playlist Player - turn a rasberry pi into a scheduled audio player."
 authors = ["Brian Kohan <bckohan@gmail.com>"]
 readme = "README.md"
