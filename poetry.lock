@@ -218,13 +218,13 @@ rich = ["rich (>=10.11.0,<14.0.0)"]
 
 [[package]]
 name = "enum-properties"
-version = "1.8.0"
+version = "2.0.1"
 description = "Add properties and method specializations to Python enumeration values with a simple declarative syntax."
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "enum_properties-1.8.0-py3-none-any.whl", hash = "sha256:1d8872fdc55d27dea144abfc74778d3c85ac3219d775366392a10e75f2896808"},
-    {file = "enum_properties-1.8.0.tar.gz", hash = "sha256:b028c8f98476f45470ecf8a48d0b47f9bd20dc229c02f6c66a0b6ad234498a46"},
+    {file = "enum_properties-2.0.1-py3-none-any.whl", hash = "sha256:28e50d9fc3567a38c55a0c82e9d38dec835654c0a4d26a4adbcec15592036335"},
+    {file = "enum_properties-2.0.1.tar.gz", hash = "sha256:0a451a069d6cc817649b337d7ebc30970f8d745faff3f5898afa53d9fe8ede3f"},
 ]
 
 [[package]]
@@ -711,4 +711,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1e8b098a68129b3bb3c7b3e21fecd68acdff2411f6844e48a575b2b38149dee0"
+content-hash = "3c82a4fc84053fbab3a49f4f0bb3df26687f735ff5dc221ae3518bfe9ffb6e35"
