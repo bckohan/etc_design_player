@@ -177,23 +177,23 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-enum"
-version = "1.3.3"
+version = "2.0.2"
 description = "Full and natural support for enumerations as Django model fields."
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "django_enum-1.3.3-py3-none-any.whl", hash = "sha256:9c3944a1ce39fa34e10c7e9c2e19b0a08a0100d4d81e7c84b40cf021605f74e0"},
-    {file = "django_enum-1.3.3.tar.gz", hash = "sha256:6e5a1a19ceaffb8b728571ccf1c3aac9cfc224282677979fe040e3bcd941cbb7"},
+    {file = "django_enum-2.0.2-py3-none-any.whl", hash = "sha256:5843285f6286cb49ba041607cf3ba554e7eb5c5e8426bab79105d2a766bffb58"},
+    {file = "django_enum-2.0.2.tar.gz", hash = "sha256:d431dc997392824671d27a1233d2bada0e386c4df6cfd4ed049161219693a5d8"},
 ]
 
 [package.dependencies]
 Django = ">=3.2,<6.0"
 
 [package.extras]
-all = ["django-filter (>=21)", "djangorestframework (>=3.9,<4.0)", "enum-properties (>=1.7.0,<2.0)"]
+all = ["django-filter (>=21)", "djangorestframework (>=3.9,<4.0)", "enum-properties (>=2.0.0)"]
 djangorestframework = ["djangorestframework (>=3.9,<4.0)"]
 filters = ["django-filter (>=21)"]
-properties = ["enum-properties (>=1.7.0,<2.0)"]
+properties = ["enum-properties (>=2.0.0)"]
 
 [[package]]
 name = "django-typer"
@@ -711,4 +711,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1e8b098a68129b3bb3c7b3e21fecd68acdff2411f6844e48a575b2b38149dee0"
+content-hash = "7efc5bf1634502b0dfb462178dc77eeaf2393d380987292d0efbef987e6fc983"
